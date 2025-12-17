@@ -3,7 +3,7 @@ import WhyChoose from "@/components/Home/WhyChoose";
 import ProductSlider from "@/components/Products/Slider/ProductSlider";
 import { homeStudio } from "@/data/homeStudio";
 
-import { homeProducts } from "../data/homeProducts";
+import { homeProducts } from "@/data/homeProducts";
 
 export default function Home() {
   return (
