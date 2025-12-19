@@ -1,125 +1,17 @@
-export default function AdminProductsPage() {
-  const products = [
-    {
-      id: 1,
-      name: "Mancera Red Tobacco",
-      price: "3.450.000đ",
-      stock: 120,
-      status: "active",
-    },
-    {
-      id: 2,
-      name: "Dior Sauvage EDP",
-      price: "3.200.000đ",
-      stock: 0,
-      status: "out",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
+import { adminProducts } from "@/data/admin-products";
 
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-  ];
+export default function AdminProductsPage() {
+  const products = adminProducts;
 
   return (
     <div className="container-laluz">
-      {/* BREADCRUMB */}
-      <div className="nav-bread">
-        <ul className="breadcrumbs-list">
-          <li className="breadcrumbs-item">
-            <a href="/admin" className="breadcrumbs-link">
-              Admin
-            </a>
-          </li>
-          <li className="breadcrumbs-item">
-            <span className="breadcrumbs-link">Sản phẩm</span>
-          </li>
-        </ul>
-      </div>
-
       {/* HEADER */}
-      <div className="row">
-        <div className="col-xg-6">
-          <h2 className="tt-sec">Quản Lý Sản Phẩm</h2>
-        </div>
-        <div className="col-xg-6" style={{ textAlign: "right" }}>
-          <a href="/admin/products/create" className="btn btn-pri">
-            <i className="fas fa-plus-circle"></i> Thêm sản phẩm
-          </a>
-        </div>
+      <div className="admin-header">
+        <h2 className="tt-sec">Quản Lý Sản Phẩm</h2>
+
+        <a href="/admin/products/create" className="btn btn-pri">
+          + Thêm sản phẩm
+        </a>
       </div>
 
       {/* TABLE */}
@@ -128,6 +20,7 @@ export default function AdminProductsPage() {
           <thead>
             <tr>
               <th>#</th>
+              <th>Ảnh</th>
               <th>Tên sản phẩm</th>
               <th>Giá</th>
               <th>Tồn kho</th>
@@ -140,9 +33,20 @@ export default function AdminProductsPage() {
             {products.map((p, index) => (
               <tr key={p.id}>
                 <td>{index + 1}</td>
+
+                {/* IMAGE */}
+                <td>
+                  <img
+                    src={p.images?.[0]}
+                    alt={p.name}
+                    className="admin-thumb"
+                  />
+                </td>
+
                 <td>{p.name}</td>
                 <td>{p.price}</td>
                 <td>{p.stock}</td>
+
                 <td>
                   {p.status === "active" ? (
                     <span className="status success">Đang bán</span>
@@ -150,6 +54,7 @@ export default function AdminProductsPage() {
                     <span className="status danger">Hết hàng</span>
                   )}
                 </td>
+
                 <td className="admin-actions">
                   <a
                     href={`/admin/products/${p.id}`}

@@ -1,0 +1,82 @@
+export const adminProducts = [
+  {
+    id: 1,
+    name: "Mancera Red Tobacco",
+    category: "Nam",
+    brand: "Mancera",
+    price: 3450000, // VNĐ
+    stock: 120,
+    sold: 45,
+    status: "active",
+    images: [
+      "/images/products/mancera-1.jpg",
+      "/images/products/mancera-2.jpg",
+    ],
+    createdAt: "2024-12-01",
+  },
+
+  {
+    id: 2,
+    name: "Dior Sauvage EDP",
+    category: "Nam",
+    brand: "Dior",
+    price: 3200000,
+    stock: 0,
+    sold: 120,
+    status: "out",
+    images: ["/images/products/dior-1.jpg"],
+    createdAt: "2024-11-20",
+  },
+
+  {
+    id: 3,
+    name: "Jean Paul Gaultier Scandal",
+    category: "Nam",
+    brand: "Jean Paul Gaultier",
+    price: 2900000,
+    stock: 45,
+    sold: 60,
+    status: "active",
+    images: ["/images/products/jpg-1.jpg"],
+    createdAt: "2024-12-05",
+  },
+
+  {
+    id: 4,
+    name: "Gucci Bloom EDP",
+    category: "Nữ",
+    brand: "Gucci",
+    price: 3100000,
+    stock: 30,
+    sold: 25,
+    status: "active",
+    images: ["/images/products/gucci-1.jpg"],
+    createdAt: "2024-12-03",
+  },
+
+  {
+    id: 5,
+    name: "Chanel Coco Mademoiselle",
+    category: "Nữ",
+    brand: "Chanel",
+    price: 4200000,
+    stock: 20,
+    sold: 40,
+    status: "active",
+    images: ["/images/products/chanel-1.jpg"],
+    createdAt: "2024-11-28",
+  },
+
+  {
+    id: 6,
+    name: "CK One EDT",
+    category: "Unisex",
+    brand: "Calvin Klein",
+    price: 2100000,
+    stock: 80,
+    sold: 70,
+    status: "active",
+    images: ["/images/products/ck-1.jpg"],
+    createdAt: "2024-12-02",
+  },
+];

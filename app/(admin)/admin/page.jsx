@@ -1,97 +1,86 @@
+import { adminProducts } from "@/data/admin-products";
+
+/* helper */
+const parsePrice = (price) => {
+  if (typeof price === "number") return price;
+  if (typeof price === "string") return Number(price.replace(/\D/g, "")) || 0;
+  return 0;
+};
+
+const getCategory = (name) => {
+  const n = name.toLowerCase();
+  if (n.includes("dior") || n.includes("mancera") || n.includes("gaultier"))
+    return "Nam";
+  if (n.includes("gucci") || n.includes("chanel")) return "Nữ";
+  return "Unisex";
+};
+
 export default function AdminDashboard() {
+  const totalProducts = adminProducts.length;
+
+  const activeProducts = adminProducts.filter((p) => p.status === "active");
+  const outProducts = adminProducts.filter((p) => p.status === "out");
+
+  const totalStock = adminProducts.reduce((sum, p) => sum + p.stock, 0);
+
+  const totalRevenue = adminProducts.reduce(
+    (sum, p) => sum + parsePrice(p.price) * (p.sold || 0),
+    0
+  );
+
+  const revenueByCategory = { Nam: 0, Nữ: 0, Unisex: 0 };
+
+  adminProducts.forEach((p) => {
+    const cat = getCategory(p.name);
+    revenueByCategory[cat] += parsePrice(p.price) * (p.sold || 0);
+  });
+
   return (
     <div className="container-laluz">
-      <div className="nav-bread">
-        <ul className="breadcrumbs-list">
-          <li className="breadcrumbs-item">
-            <a href="/" className="breadcrumbs-link">
-              Home
-            </a>
-          </li>
-          <li className="breadcrumbs-item">
-            <a href="/admin" className="breadcrumbs-link">
-              Admin
-            </a>
-          </li>
-          <li className="breadcrumbs-item">
-            <span className="breadcrumbs-link">Dashboard</span>
-          </li>
-        </ul>
+      <h2 className="tt-sec">Dashboard</h2>
+
+      <div className="dashboard-grid">
+        <StatCard
+          title="Tổng doanh thu"
+          value={totalRevenue.toLocaleString("vi-VN") + " đ"}
+          color="blue"
+        />
+        <StatCard title="Tổng sản phẩm" value={totalProducts} />
+        <StatCard
+          title="Đang bán"
+          value={activeProducts.length}
+          color="green"
+        />
+        <StatCard title="Hết hàng" value={outProducts.length} color="red" />
       </div>
 
-      <div className="row" style={{ paddingTop: "var(--spc-sect)" }}>
-        <div className="col-xg-12 col-lg-12 col-md-12">
-          <h2 className="tt-sec" style={{ marginBottom: "3rem" }}>
-            Thống Kê Tổng Quan
-          </h2>
+      <div className="box-white category-chart">
+        <h3>Doanh thu theo danh mục</h3>
 
-          <div className="row">
-            {[
-              ["Tổng Đơn Hàng", "1,250", "Đơn hàng trong tháng"],
-              ["Doanh Thu", "5.3 Tỷ", "Doanh thu ròng tháng này"],
-              ["Khách Hàng Mới", "850", "Tài khoản đăng ký mới"],
-              ["Sản Phẩm Tồn Kho", "2,140", "Tổng số sản phẩm"],
-            ].map(([title, value, desc], i) => (
-              <div key={i} className="col-xg-3 col-lg-6 col-md-6 col-sm-12">
-                <div className="box-info" style={{ textAlign: "center" }}>
-                  <div className="tt">{title}</div>
-                  <p className="price-new" style={{ fontSize: "3.5rem" }}>
-                    {value}
-                  </p>
-                  <p className="txt-nm">{desc}</p>
-                </div>
+        <div className="category-bars">
+          {Object.entries(revenueByCategory).map(([cat, value]) => (
+            <div key={cat} className="category-item">
+              <div className="bar-wrapper">
+                <div
+                  className={`bar ${cat.toLowerCase()}`}
+                  style={{ height: Math.min(value / 1_000_000, 160) }}
+                />
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div
-          className="col-xg-12 col-lg-12 col-md-12"
-          style={{ marginTop: "3rem" }}
-        >
-          <h3
-            className="tt-sec"
-            style={{ fontSize: "2.2rem", marginBottom: "2rem" }}
-          >
-            Thao Tác Nhanh
-          </h3>
-
-          <div className="row" style={{ "--row-gap": "2rem" }}>
-            <div className="col-xg-4 col-lg-4 col-md-6 col-sm-12">
-              <button
-                className="btn btn-second"
-                style={{ width: "100%", minHeight: "5rem" }}
-              >
-                <span className="txt">
-                  <i className="fas fa-plus-circle"></i> Thêm Sản Phẩm Mới
-                </span>
-              </button>
+              <strong>{cat}</strong>
+              <span>{value.toLocaleString("vi-VN")} đ</span>
             </div>
-
-            <div className="col-xg-4 col-lg-4 col-md-6 col-sm-12">
-              <button
-                className="btn btn-four"
-                style={{ width: "100%", minHeight: "5rem" }}
-              >
-                <span className="txt">
-                  <i className="fas fa-clipboard-list"></i> Xem Đơn Hàng Chờ
-                </span>
-              </button>
-            </div>
-
-            <div className="col-xg-4 col-lg-4 col-md-6 col-sm-12">
-              <button
-                className="btn btn-pri"
-                style={{ width: "100%", minHeight: "5rem" }}
-              >
-                <span className="txt">
-                  <i className="fas fa-file-alt"></i> Viết Bài Blog Mới
-                </span>
-              </button>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+function StatCard({ title, value, color }) {
+  return (
+    <div className={`dash-card ${color || ""}`}>
+      <p>{title}</p>
+      <strong>{value}</strong>
     </div>
   );
 }

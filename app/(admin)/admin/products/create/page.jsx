@@ -1,115 +1,115 @@
 "use client";
 
 import { useState } from "react";
+import { adminProducts } from "@/data/admin-products";
 
 export default function CreateProductPage() {
   const [form, setForm] = useState({
     name: "",
     price: "",
     stock: "",
-    status: "available",
+    status: "active",
   });
 
+  const [images, setImages] = useState([]);
   const [errors, setErrors] = useState({});
 
-  // handle input
+  /* ===== HANDLE CHANGE ===== */
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // validate
+  /* ===== IMAGE UPLOAD (MOCK) ===== */
+  const handleImages = (e) => {
+    const files = Array.from(e.target.files);
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setImages(previews);
+  };
+
+  /* ===== VALIDATE ===== */
   const validate = () => {
-    const newErrors = {};
-
-    if (!form.name.trim()) {
-      newErrors.name = "Vui lòng nhập tên sản phẩm";
-    }
-
-    if (!form.price.trim()) {
-      newErrors.price = "Vui lòng nhập giá bán";
-    } else if (isNaN(form.price) || Number(form.price) <= 0) {
-      newErrors.price = "Giá bán phải là số lớn hơn 0";
-    }
-
-    if (form.stock === "") {
-      newErrors.stock = "Vui lòng nhập số lượng tồn";
-    } else if (
-      !Number.isInteger(Number(form.stock)) ||
-      Number(form.stock) < 0
-    ) {
-      newErrors.stock = "Số lượng phải là số nguyên ≥ 0";
-    }
-
-    if (!form.status) {
-      newErrors.status = "Vui lòng chọn trạng thái";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const err = {};
+    if (!form.name) err.name = "Vui lòng nhập tên sản phẩm";
+    if (!form.price || isNaN(form.price)) err.price = "Giá phải là số";
+    if (!form.stock || form.stock < 0) err.stock = "Số lượng không hợp lệ";
+    if (images.length === 0) err.images = "Vui lòng chọn ít nhất 1 ảnh";
+    setErrors(err);
+    return Object.keys(err).length === 0;
   };
 
-  // submit
+  /* ===== SUBMIT ===== */
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
 
-    console.log("DATA SUBMIT:", form);
+    adminProducts.push({
+      id: Date.now(),
+      name: form.name,
+      price: Number(form.price),
+      stock: Number(form.stock),
+      status: form.status,
+      images,
+    });
 
-    alert("Lưu sản phẩm thành công!"); // demo cho đồ án
+    alert("Thêm sản phẩm thành công (mock)");
   };
 
   return (
     <div className="container-laluz">
       <h2 className="tt-sec">THÊM SẢN PHẨM MỚI</h2>
 
-      <form className="admin-form" onSubmit={handleSubmit}>
-        {/* Tên sản phẩm */}
+      <form className="admin-form box-white" onSubmit={handleSubmit}>
+        {/* TÊN */}
         <div className="form-group">
           <label>Tên sản phẩm *</label>
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Nhập tên sản phẩm"
-          />
+          <input name="name" onChange={handleChange} />
           {errors.name && <p className="form-error">{errors.name}</p>}
         </div>
 
-        {/* Giá bán */}
+        {/* GIÁ */}
         <div className="form-group">
           <label>Giá bán *</label>
-          <input
-            name="price"
-            value={form.price}
-            onChange={handleChange}
-            placeholder="VD: 3450000"
-          />
+          <input name="price" onChange={handleChange} />
           {errors.price && <p className="form-error">{errors.price}</p>}
         </div>
 
-        {/* Số lượng */}
+        {/* TỒN */}
         <div className="form-group">
           <label>Số lượng tồn *</label>
-          <input name="stock" value={form.stock} onChange={handleChange} />
+          <input type="number" name="stock" onChange={handleChange} />
           {errors.stock && <p className="form-error">{errors.stock}</p>}
         </div>
 
-        {/* Trạng thái */}
+        {/* TRẠNG THÁI */}
         <div className="form-group">
-          <label>Trạng thái *</label>
-          <select name="status" value={form.status} onChange={handleChange}>
-            <option value="available">Đang bán</option>
+          <label>Trạng thái</label>
+          <select name="status" onChange={handleChange}>
+            <option value="active">Đang bán</option>
             <option value="out">Hết hàng</option>
           </select>
-          {errors.status && <p className="form-error">{errors.status}</p>}
         </div>
 
-        {/* Actions */}
+        {/* ẢNH */}
+        <div className="form-group">
+          <label>Ảnh sản phẩm *</label>
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleImages}
+          />
+          {errors.images && <p className="form-error">{errors.images}</p>}
+
+          <div className="preview-images">
+            {images.map((img, i) => (
+              <img key={i} src={img} alt="" />
+            ))}
+          </div>
+        </div>
+
+        {/* ACTION */}
         <div className="form-actions">
-          <button type="submit" className="btn btn-pri">
-            Lưu sản phẩm
-          </button>
+          <button className="btn btn-pri">Lưu sản phẩm</button>
           <a href="/admin/products" className="btn btn-four">
             Hủy
           </a>
