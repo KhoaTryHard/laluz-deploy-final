@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+// Import Component bảo vệ
+import AdminGuard from "@/components/Admin/AdminGuard"; 
 import "./admin.css";
 import "./style.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -28,8 +30,14 @@ export default function AdminLayout({ children }) {
     };
   }, []);
 
+  // Hàm xử lý đăng xuất: Xóa localStorage rồi mới chuyển trang
+  const handleLogout = () => {
+    localStorage.removeItem("admin_user");
+  };
+
   return (
-    <>
+    // [QUAN TRỌNG] Bọc toàn bộ giao diện trong AdminGuard
+    <AdminGuard>
       {/* ===== HEADER ===== */}
       <header className="header">
         <div className="container">
@@ -49,7 +57,7 @@ export default function AdminLayout({ children }) {
                         <span className="line-ham"></span>
                       </div>
                     </div>
-                    <a href="/admin/login" className="hd-login">
+                    <a href="/admin/login" className="hd-login" onClick={handleLogout}>
                       <div className="ic-login">
                         <i className="fas fa-user-circle fa-2x"></i>
                       </div>
@@ -88,7 +96,8 @@ export default function AdminLayout({ children }) {
                 </a>
               </li>
               <li className="menu-item">
-                <a href="/admin/login" className="menu-link txt-mn">
+                {/* Thêm sự kiện onClick để xóa dữ liệu khi đăng xuất */}
+                <a href="/admin/login" className="menu-link txt-mn" onClick={handleLogout}>
                   <i className="fas fa-sign-out-alt"></i> Đăng xuất
                 </a>
               </li>
@@ -101,6 +110,6 @@ export default function AdminLayout({ children }) {
 
       {/* ===== MAIN ===== */}
       <main className="main spc-hd main-default-page">{children}</main>
-    </>
+    </AdminGuard>
   );
 }

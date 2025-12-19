@@ -1,98 +1,27 @@
-export default function AdminProductsPage() {
-  const products = [
-    {
-      id: 1,
-      name: "Mancera Red Tobacco",
-      price: "3.450.000đ",
-      stock: 120,
-      status: "active",
-    },
-    {
-      id: 2,
-      name: "Dior Sauvage EDP",
-      price: "3.200.000đ",
-      stock: 0,
-      status: "out",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
+// app/(admin)/admin/products/page.jsx
+import { query } from "@/lib/db";
+import Link from "next/link";
+import DeleteProductButton from "./DeleteProductButton"; // Import nút xóa vừa tạo
 
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Jean Paul Gaultier Scandal",
-      price: "2.900.000đ",
-      stock: 45,
-      status: "active",
-    },
-  ];
+// Hàm lấy danh sách sản phẩm từ SQL
+async function getProducts() {
+  // Lấy dữ liệu và sắp xếp sản phẩm mới nhất lên đầu
+  const products = await query({
+    query: "SELECT product_id, name, price, stock_quantity FROM PRODUCTS ORDER BY product_id DESC",
+  });
+  return products;
+}
+
+export default async function AdminProductsPage() {
+  const products = await getProducts();
+
+  // Hàm format tiền tệ (VND)
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
+  };
 
   return (
     <div className="container-laluz">
@@ -100,9 +29,9 @@ export default function AdminProductsPage() {
       <div className="nav-bread">
         <ul className="breadcrumbs-list">
           <li className="breadcrumbs-item">
-            <a href="/admin" className="breadcrumbs-link">
+            <Link href="/admin" className="breadcrumbs-link">
               Admin
-            </a>
+            </Link>
           </li>
           <li className="breadcrumbs-item">
             <span className="breadcrumbs-link">Sản phẩm</span>
@@ -116,9 +45,10 @@ export default function AdminProductsPage() {
           <h2 className="tt-sec">Quản Lý Sản Phẩm</h2>
         </div>
         <div className="col-xg-6" style={{ textAlign: "right" }}>
-          <a href="/admin/products/create" className="btn btn-pri">
+          {/* Link dẫn tới trang Thêm mới chúng ta đã làm */}
+          <Link href="/admin/products/new" className="btn btn-pri">
             <i className="fas fa-plus-circle"></i> Thêm sản phẩm
-          </a>
+          </Link>
         </div>
       </div>
 
@@ -127,7 +57,7 @@ export default function AdminProductsPage() {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>#</th>
+              <th>ID</th>
               <th>Tên sản phẩm</th>
               <th>Giá</th>
               <th>Tồn kho</th>
@@ -137,30 +67,56 @@ export default function AdminProductsPage() {
           </thead>
 
           <tbody>
-            {products.map((p, index) => (
-              <tr key={p.id}>
-                <td>{index + 1}</td>
-                <td>{p.name}</td>
-                <td>{p.price}</td>
-                <td>{p.stock}</td>
-                <td>
-                  {p.status === "active" ? (
-                    <span className="status success">Đang bán</span>
-                  ) : (
-                    <span className="status danger">Hết hàng</span>
-                  )}
-                </td>
-                <td className="admin-actions">
-                  <a
-                    href={`/admin/products/${p.id}`}
-                    className="btn btn-second btn-sm"
-                  >
-                    Sửa
-                  </a>
-                  <button className="btn btn-four btn-sm">Xóa</button>
+            {products.length > 0 ? (
+              products.map((p) => (
+                <tr key={p.product_id}>
+                  <td>#{p.product_id}</td>
+                  
+                  {/* Tên sản phẩm */}
+                  <td>
+                    <strong>{p.name}</strong>
+                  </td>
+
+                  {/* Giá bán */}
+                  <td style={{ color: "#d33", fontWeight: "bold" }}>
+                    {formatPrice(p.price)}
+                  </td>
+
+                  {/* Tồn kho */}
+                  <td>{p.stock_quantity}</td>
+
+                  {/* Trạng thái (Logic: Còn hàng > 0 là Active) */}
+                  <td>
+                    {p.stock_quantity > 0 ? (
+                      <span className="status success">Đang bán</span>
+                    ) : (
+                      <span className="status danger">Hết hàng</span>
+                    )}
+                  </td>
+
+                  {/* Hành động */}
+                  <td className="admin-actions">
+                    {/* Nút Sửa: Dẫn tới trang [id] */}
+                    <Link
+                      href={`/admin/products/${p.product_id}`}
+                      className="btn btn-second btn-sm"
+                      style={{ marginRight: "5px" }}
+                    >
+                      Sửa
+                    </Link>
+
+                    {/* Nút Xóa: Component Client */}
+                    <DeleteProductButton id={p.product_id} />
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
+                  Chưa có sản phẩm nào. Hãy thêm mới!
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

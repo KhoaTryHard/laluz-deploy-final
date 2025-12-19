@@ -3,9 +3,14 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FreeMode, Thumbs } from "swiper/modules";
 import { useState } from "react";
+import "swiper/css";
+import "swiper/css/free-mode";
+import "swiper/css/thumbs";
 
 export default function ProductGallery({ images = [] }) {
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
+    
+  if (!images || images.length === 0) return null;
 
   return (
     <div id="monaGalleryProduct">
@@ -44,7 +49,7 @@ export default function ProductGallery({ images = [] }) {
           <Swiper
             modules={[FreeMode, Thumbs]}
             onSwiper={setThumbsSwiper}
-            slidesPerView={4}
+            slidesPerView={2}
             freeMode
             watchSlidesProgress
             className="mySwiperBottom swiper-thumbs"

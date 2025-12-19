@@ -1,17 +1,108 @@
-export default function AdminDashboard() {
+import { query } from "@/lib/db"; // Import hàm kết nối DB
+import Link from "next/link";
+
+// 1. Hàm lấy dữ liệu thống kê từ SQL
+async function getAnalyticsData() {
+  try {
+    // Chúng ta chạy song song 4 câu lệnh để tiết kiệm thời gian
+    const [ordersRes, revenueRes, usersRes, productsRes] = await Promise.all([
+      // A. Tổng đơn hàng (Đếm số giỏ hàng đã chuyển đổi thành đơn)
+      query({
+        query: "SELECT COUNT(*) as count FROM carts WHERE status = 'converted'",
+      }),
+
+      // B. Doanh thu (Tính tổng tiền: giá * số lượng của các đơn đã xong)
+      query({
+        query: `
+          SELECT SUM(p.price * ci.quantity) as total 
+          FROM cart_items ci
+          JOIN products p ON ci.product_id = p.product_id
+          JOIN carts c ON ci.cart_id = c.cart_id
+          WHERE c.status = 'converted'
+        `,
+      }),
+
+      // C. Khách hàng mới (Đếm tổng user)
+      query({
+        query: "SELECT COUNT(*) as count FROM USERS",
+      }),
+
+      // D. Sản phẩm tồn kho (Tổng số lượng tồn kho của tất cả sản phẩm)
+      query({
+        query: "SELECT SUM(stock_quantity) as count FROM PRODUCTS",
+      }),
+    ]);
+
+    // Trả về object dữ liệu
+    return {
+      totalOrders: ordersRes[0].count || 0,
+      totalRevenue: revenueRes[0].total || 0,
+      totalUsers: usersRes[0].count || 0,
+      totalStock: productsRes[0].count || 0,
+    };
+  } catch (error) {
+    console.error("Lỗi lấy thống kê:", error);
+    return {
+      totalOrders: 0,
+      totalRevenue: 0,
+      totalUsers: 0,
+      totalStock: 0,
+    };
+  }
+}
+
+// 2. Component chính (Server Component)
+export default async function AdminDashboard() {
+  // Gọi hàm lấy dữ liệu
+  const stats = await getAnalyticsData();
+
+  // Hàm định dạng tiền tệ (VND)
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(amount);
+  };
+
+  // Hàm định dạng số (1,000)
+  const formatNumber = (num) => {
+    return new Intl.NumberFormat("vi-VN").format(num);
+  };
+
+  // Cấu hình dữ liệu hiển thị
+  const statCards = [
+    {
+      title: "Tổng Đơn Hàng",
+      value: formatNumber(stats.totalOrders),
+      desc: "Đơn hàng đã hoàn thành",
+    },
+    {
+      title: "Doanh Thu",
+      value: formatCurrency(stats.totalRevenue),
+      desc: "Tổng doanh thu bán hàng",
+    },
+    {
+      title: "Khách Hàng",
+      value: formatNumber(stats.totalUsers),
+      desc: "Tài khoản đăng ký hệ thống",
+    },
+    {
+      title: "Sản Phẩm Tồn Kho",
+      value: formatNumber(stats.totalStock),
+      desc: "Tổng số lượng trong kho",
+    },
+  ];
+
   return (
     <div className="container-laluz">
+      {/* Breadcrumbs */}
       <div className="nav-bread">
         <ul className="breadcrumbs-list">
           <li className="breadcrumbs-item">
-            <a href="/" className="breadcrumbs-link">
-              Home
-            </a>
+            <a href="/" className="breadcrumbs-link">Home</a>
           </li>
           <li className="breadcrumbs-item">
-            <a href="/admin" className="breadcrumbs-link">
-              Admin
-            </a>
+            <a href="/admin" className="breadcrumbs-link">Admin</a>
           </li>
           <li className="breadcrumbs-item">
             <span className="breadcrumbs-link">Dashboard</span>
@@ -25,26 +116,23 @@ export default function AdminDashboard() {
             Thống Kê Tổng Quan
           </h2>
 
+          {/* RENDER DỮ LIỆU TỪ DB */}
           <div className="row">
-            {[
-              ["Tổng Đơn Hàng", "1,250", "Đơn hàng trong tháng"],
-              ["Doanh Thu", "5.3 Tỷ", "Doanh thu ròng tháng này"],
-              ["Khách Hàng Mới", "850", "Tài khoản đăng ký mới"],
-              ["Sản Phẩm Tồn Kho", "2,140", "Tổng số sản phẩm"],
-            ].map(([title, value, desc], i) => (
+            {statCards.map((item, i) => (
               <div key={i} className="col-xg-3 col-lg-6 col-md-6 col-sm-12">
                 <div className="box-info" style={{ textAlign: "center" }}>
-                  <div className="tt">{title}</div>
-                  <p className="price-new" style={{ fontSize: "3.5rem" }}>
-                    {value}
+                  <div className="tt">{item.title}</div>
+                  <p className="price-new" style={{ fontSize: "3rem" }}>
+                    {item.value}
                   </p>
-                  <p className="txt-nm">{desc}</p>
+                  <p className="txt-nm">{item.desc}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
+        {/* PHẦN THAO TÁC NHANH (GIỮ NGUYÊN UI CŨ) */}
         <div
           className="col-xg-12 col-lg-12 col-md-12"
           style={{ marginTop: "3rem" }}
@@ -53,30 +141,34 @@ export default function AdminDashboard() {
             className="tt-sec"
             style={{ fontSize: "2.2rem", marginBottom: "2rem" }}
           >
-            Thao Tác Nhanh
+            Chức năng
           </h3>
 
           <div className="row" style={{ "--row-gap": "2rem" }}>
             <div className="col-xg-4 col-lg-4 col-md-6 col-sm-12">
-              <button
-                className="btn btn-second"
-                style={{ width: "100%", minHeight: "5rem" }}
-              >
-                <span className="txt">
-                  <i className="fas fa-plus-circle"></i> Thêm Sản Phẩm Mới
-                </span>
-              </button>
+              <Link href="/admin/products"> 
+                <button
+                  className="btn btn-second"
+                  style={{ width: "100%", minHeight: "5rem" }}
+                >
+                  <span className="txt">
+                    <i className="fas fa-plus-circle"></i> Quản Lí Sản Phẩm
+                  </span>
+                </button>
+              </Link>
             </div>
 
             <div className="col-xg-4 col-lg-4 col-md-6 col-sm-12">
-              <button
-                className="btn btn-four"
-                style={{ width: "100%", minHeight: "5rem" }}
-              >
-                <span className="txt">
-                  <i className="fas fa-clipboard-list"></i> Xem Đơn Hàng Chờ
-                </span>
-              </button>
+              <a href="/admin/orders">
+                <button
+                  className="btn btn-four"
+                  style={{ width: "100%", minHeight: "5rem" }}
+                >
+                  <span className="txt">
+                    <i className="fas fa-clipboard-list"></i> Xem Đơn Hàng
+                  </span>
+                </button>
+              </a>
             </div>
 
             <div className="col-xg-4 col-lg-4 col-md-6 col-sm-12">
@@ -85,7 +177,7 @@ export default function AdminDashboard() {
                 style={{ width: "100%", minHeight: "5rem" }}
               >
                 <span className="txt">
-                  <i className="fas fa-file-alt"></i> Viết Bài Blog Mới
+                  <i className="fas fa-file-alt"></i> Quản lý Users
                 </span>
               </button>
             </div>
