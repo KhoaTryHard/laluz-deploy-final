@@ -132,7 +132,7 @@ export default function CheckoutPage() {
 
       if (!res.ok) throw new Error(data.message || "Lỗi đặt hàng");
 
-      localStorage.removeItem("cart");
+      localStorage.removeItem("laluz_cart");
       window.dispatchEvent(new Event("storage"));
       alert(`Đặt hàng thành công! Mã đơn: #${data.orderId}`);
       router.push(`/account/orders/${data.orderId}`);
@@ -175,7 +175,7 @@ export default function CheckoutPage() {
 
         // Fallback LocalStorage
         if (finalItems.length === 0) {
-            finalItems = JSON.parse(localStorage.getItem("cart") || "[]");
+            finalItems = JSON.parse(localStorage.getItem("laluz_cart") || "[]");
         }
 
         // BƯỚC QUAN TRỌNG: CLEAN DATA (Ép kiểu số)

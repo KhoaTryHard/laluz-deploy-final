@@ -74,9 +74,7 @@ export default function BrandAZClient({ brands }) {
 
                 <span className="brand-inner">
                   <span className="brand-name">{b.name}</span>
-                  {b.origin_country && (
-                    <span className="brand-country">{b.origin_country}</span>
-                  )}
+                  
                 </span>
               </Link>
             </li>

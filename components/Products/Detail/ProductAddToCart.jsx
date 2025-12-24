@@ -4,35 +4,44 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { addToCart } from "@/components/Cart/cart-utils";
 
-// 1. NHẬN PROPS "product" TỪ COMPONENT CHA
 export default function ProductAddToCart({ product }) {
   const router = useRouter();
   const [qty, setQty] = useState(1);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Thêm state check login
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Kiểm tra dữ liệu an toàn
   if (!product) return null;
 
-  // Lấy tồn kho (đã được truyền từ cha xuống)
   const stock = product.stock_quantity || 0;
+
+  // ✅ NORMALIZE PRODUCT – CHỈ 1 LẦN
+  const normalizedProduct = {
+    id: product.product_id,
+    product_id: product.product_id,
+    name: product.name,
+    price: Number(product.price),
+    image: product.image_url,
+    slug: product.slug || "",
+    stock_quantity: product.stock_quantity,
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("/api/auth/me");
-        if (res.ok) setIsLoggedIn(true);
-      } catch (e) {
+        const res = await fetch("/api/auth/me", {
+          credentials: "include",
+        });
+        setIsLoggedIn(res.ok);
+      } catch {
         setIsLoggedIn(false);
       }
     };
     checkAuth();
   }, []);
 
-  // --- LOGIC XỬ LÝ (GIỮ LẠI ĐỂ NÚT BẤM HOẠT ĐỘNG) ---
   const handleQuantityChange = (amount) => {
     const newQty = qty + amount;
-    const maxLimit = stock > 0 ? stock : 1; 
+    const maxLimit = stock > 0 ? stock : 1;
     if (newQty >= 1 && newQty <= maxLimit) {
       setQty(newQty);
     }
@@ -44,28 +53,24 @@ export default function ProductAddToCart({ product }) {
       return false;
     }
 
-    setLoading(true); // Bật loading
+    setLoading(true);
+    await addToCart(normalizedProduct, qty, isLoggedIn);
+    setLoading(false);
 
-    // --- GỌI HÀM XỬ LÝ CHUNG ---
-    // Hàm này sẽ tự quyết định lưu vào DB hay LocalStorage
-    await addToCart(product, qty, isLoggedIn);
-    
-    setLoading(false); // Tắt loading
     return true;
   };
 
   const handleAddToCart = async () => {
     await handleAddToCartProcess();
-    // Không cần alert ở đây nữa vì hàm addToCart trong utils đã alert rồi
   };
 
-  const handleBuyNow = () => {
-    if (addToCartLogic()) {
+  const handleBuyNow = async () => {
+    const success = await handleAddToCartProcess();
+    if (success) {
       router.push("/cart");
     }
   };
 
-  // --- PHẦN GIAO DIỆN (RENDER) ---
   return (
     <div className="btn-list-variable">
       <div className="quantity-prod">
@@ -98,27 +103,30 @@ export default function ProductAddToCart({ product }) {
 
       <div className="btn-list">
         <div className="btn-item">
-          <button 
+          <button
+            disabled={loading}
             className="btn btn-pri mona-add-to-cart-detail"
-            onClick={handleAddToCart} // Gắn sự kiện click
+            onClick={handleAddToCart}
           >
             <span className="txt">THÊM VÀO GIỎ HÀNG</span>
           </button>
         </div>
 
         <div className="btn-item m-buy-now">
-          <button 
+          <button
+            disabled={loading}
             className="btn btn-second"
-            onClick={handleBuyNow} // Gắn sự kiện click
+            onClick={handleBuyNow}
           >
             <span className="txt">MUA NGAY</span>
           </button>
         </div>
       </div>
-      
-      {/* Hiển thị thông báo nếu hết hàng (Optional) */}
+
       {stock <= 0 && (
-          <p style={{ color: 'red', marginTop: '10px' }}>Sản phẩm tạm thời hết hàng</p>
+        <p style={{ color: "red", marginTop: 10 }}>
+          Sản phẩm tạm thời hết hàng
+        </p>
       )}
     </div>
   );

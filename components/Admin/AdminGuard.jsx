@@ -21,7 +21,7 @@ export default function AdminGuard({ children }) {
 
     if (!user) {
       // Chưa đăng nhập -> Đá về Login
-      router.push("/admin/login");
+      router.push("/login");
       setAuthorized(false);
     } else {
       // Đã đăng nhập -> Cho phép vào

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
 
-const FALLBACK = ["Floral", "Floral Fruity", "Woody"]; // menu không rỗng
+const FALLBACK = ["Floral", "Floral Fruity", "Woody"];
 
 export async function GET() {
   try {

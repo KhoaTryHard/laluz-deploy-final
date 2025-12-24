@@ -114,6 +114,9 @@ export default function HeaderBottom() {
                                 pathname: "/collections/all",
                                 query: { brand: brand.name },
                               }}
+                              onClick={() => {
+                                router.refresh();
+                              }}
                             >
                               {brand.name}
                             </Link>
@@ -163,6 +166,9 @@ export default function HeaderBottom() {
                                 pathname: "/collections/all",
                                 query: { brand: brand.name },
                               }}
+                              onClick={() => {
+                                router.refresh();
+                              }}
                               className="brand-link"
                             >
                               {brand.name}
@@ -187,15 +193,16 @@ export default function HeaderBottom() {
                 <div className="menu-mega">
                   {/* Nhóm nước hoa */}
                   <div className="menu-mega-item">
-                    <a href="/nuoc-hoa" className="tt-mg">
-                      Nước hoa
-                    </a>
+                    <div className="tt-mg">Nước Hoa</div>
                     <ul className="menu-list">
                       <li className="menu-item">
                         <Link
                           href={{
                             pathname: "/collections/all",
                             query: { gender: "Unisex" },
+                          }}
+                          onClick={() => {
+                            router.refresh();
                           }}
                           className="menu-link"
                         >
@@ -208,6 +215,9 @@ export default function HeaderBottom() {
                             pathname: "/collections/all",
                             query: { gender: "Nữ" },
                           }}
+                          onClick={() => {
+                            router.refresh();
+                          }}
                           className="menu-link"
                         >
                           Nước hoa Nữ
@@ -218,6 +228,9 @@ export default function HeaderBottom() {
                           href={{
                             pathname: "/collections/all",
                             query: { gender: "Nam" },
+                          }}
+                          onClick={() => {
+                            router.refresh();
                           }}
                           className="menu-link"
                         >
@@ -237,6 +250,9 @@ export default function HeaderBottom() {
                             href={{
                               pathname: "/collections/all",
                               query: { note: name },
+                            }}
+                            onClick={() => {
+                              router.refresh();
                             }}
                             className="menu-link"
                           >
@@ -258,6 +274,9 @@ export default function HeaderBottom() {
                               pathname: "/collections/all",
                               query: { concentration: c },
                             }}
+                            onClick={() => {
+                              router.refresh();
+                            }}
                             className="menu-link"
                           >
                             {c}
@@ -271,7 +290,7 @@ export default function HeaderBottom() {
 
               {/* Tin tức */}
               <li className="menu-item parent fz16 fw6 dropdown menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children dropdown">
-                <a className="menu-link txt-mn" href="/tin-tuc">
+                <a className="menu-link txt-mn" href="/about-laluz">
                   Tin tức
                   <span className="ic-angle">
                     <i className="fa-solid fa-caret-down"></i>
@@ -280,14 +299,14 @@ export default function HeaderBottom() {
 
                 <ul className="menu-list">
                   <li className="menu-item parent fz16 fw6 dropdown menu-item menu-item-type-taxonomy menu-item-object-category">
-                    <a className="menu-link" href="/chuyen-muc/review-nuoc-hoa">
+                    <a className="menu-link" href="/about-laluz">
                       Review nước hoa
                     </a>
                   </li>
                   <li className="menu-item parent fz16 fw6 dropdown menu-item menu-item-type-taxonomy menu-item-object-category">
                     <a
                       className="menu-link"
-                      href="/chuyen-muc/kinh-nghiem-chon-nuoc-hoa"
+                      href="/about-laluz"
                     >
                       Kinh nghiệm chọn nước hoa
                     </a>
@@ -297,7 +316,7 @@ export default function HeaderBottom() {
 
               {/* Liên hệ */}
               <li className="menu-item parent fz16 fw6 dropdown menu-item menu-item-type-post_type menu-item-object-page">
-                <a className="menu-link txt-mn" href="/lien-he">
+                <a className="menu-link txt-mn" href="/about-laluz">
                   Liên hệ
                 </a>
               </li>

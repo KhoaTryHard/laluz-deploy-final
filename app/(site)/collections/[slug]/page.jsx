@@ -1,19 +1,16 @@
-// app/(site)/collections/[slug]/page.jsx
 import CollectionPage from "@/components/Products/Collection/CollectionPage";
 import { query } from "@/lib/db";
 
-// Hàm format tiền tệ (VND)
+// Format tiền
 const formatCurrency = (amount) =>
   new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
     amount
   );
 
-// Hàm lấy sản phẩm từ SQL
-async function getProductsBySlug(slug) {
-  let sql = "";
+// Lấy sản phẩm (có search keyword)
+async function getProductsBySlug(slug, keyword) {
   let values = [];
-
-  const baseQuery = `
+  let sql = `
     SELECT 
       p.product_id, 
       p.name, 
@@ -24,7 +21,8 @@ async function getProductsBySlug(slug) {
       p.created_at,
       pi.image_url,
       c.name as category_name,
-      b.name as brand_name
+      b.name as brand_name,
+      GROUP_CONCAT(DISTINCT n.family) AS note_families
     FROM products p
     LEFT JOIN product_images pi 
       ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
@@ -32,23 +30,34 @@ async function getProductsBySlug(slug) {
       ON p.brand_id = b.brand_id
     LEFT JOIN categories c 
       ON p.category_id = c.category_id
+    LEFT JOIN product_notes pn 
+      ON p.product_id = pn.product_id
+    LEFT JOIN notes n 
+      ON pn.note_id = n.note_id
   `;
 
-  if (slug === "all") {
-    sql = `${baseQuery} ORDER BY p.created_at DESC`;
-  } else {
-    sql = `
-      ${baseQuery}
-      WHERE c.slug = ?
-      ORDER BY p.created_at DESC
-    `;
-    values = [slug];
+  // Category filter
+  if (slug !== "all") {
+    sql += ` WHERE c.slug = ?`;
+    values.push(slug);
   }
+
+  // Search keyword
+  if (keyword) {
+    sql += slug === "all" ? " WHERE" : " AND";
+    sql += ` (p.name LIKE ? OR b.name LIKE ?)`;
+    values.push(`%${keyword}%`, `%${keyword}%`);
+  }
+
+  sql += `
+    GROUP BY p.product_id
+    ORDER BY p.created_at DESC
+  `;
 
   return await query({ query: sql, values });
 }
 
-// Hàm lấy tên danh mục để hiển thị tiêu đề
+// Lấy tên danh mục
 async function getCategoryName(slug) {
   if (slug === "all") return "Tất cả sản phẩm";
   try {
@@ -63,19 +72,20 @@ async function getCategoryName(slug) {
 }
 
 export default async function Page({ params, searchParams }) {
-  // Next 16: params/searchParams có thể là Promise -> unwrap
   const { slug } = await params;
   const sp = (await searchParams) || {};
 
   const currentSlug = slug ?? "all";
+  const keyword = sp.s?.trim() || null;
 
-  // URL filters (nếu không có thì null)
+  // Filters khác
   const initialGender = sp.gender || null;
   const initialBrand = sp.brand || null;
   const initialNote = sp.note || null;
   const initialConcentration = sp.concentration || null;
 
-  const rawProducts = await getProductsBySlug(currentSlug);
+  // Lấy sản phẩm (đã search)
+  const rawProducts = await getProductsBySlug(currentSlug, keyword);
   const categoryName = await getCategoryName(currentSlug);
 
   const getGenderFromCategory = (catName) => {
@@ -96,15 +106,19 @@ export default async function Page({ params, searchParams }) {
     inStock: Number(p.stock_quantity) > 0,
     gender: getGenderFromCategory(p.category_name),
     category: currentSlug,
-    createdAt: p.created_at,              // ✅ để sort newest chạy đúng
-    concentration: p.concentration || "", // ✅ để filter nồng độ
-    // notes: [] // nếu bạn có notes thì add ở đây sau
+    createdAt: p.created_at,
+    concentration: p.concentration || "",
+    notes: p.note_families ? p.note_families.split(",") : [],
   }));
 
   return (
     <CollectionPage
       slug={currentSlug}
-      title={categoryName}
+      title={
+        keyword
+          ? `Kết quả tìm kiếm cho "${keyword}"`
+          : categoryName
+      }
       products={formattedProducts}
       initialGender={initialGender}
       initialBrand={initialBrand}

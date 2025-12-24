@@ -5,7 +5,10 @@ import CartItemRow from "./CartItemRow";
 export default function CartTable({ cartItems, onUpdateQuantity, onRemove }) {
   return (
     <div className="table-responsive">
-      <table className="shop_table" style={{ width: "100%", borderCollapse: "collapse" }}>
+      <table
+        className="shop_table"
+        style={{ width: "100%", borderCollapse: "collapse" }}
+      >
         <thead>
           <tr style={{ borderBottom: "2px solid #eee" }}>
             <th style={{ textAlign: "left", padding: "10px" }}>Sản phẩm</th>
@@ -14,12 +17,11 @@ export default function CartTable({ cartItems, onUpdateQuantity, onRemove }) {
         </thead>
         <tbody>
           {/* DUYỆT QUA DANH SÁCH VÀ TRUYỀN HÀM XUỐNG CHO CARTITEMROW */}
-          {cartItems.map((product) => (
+          {cartItems.map((product, index) => (
             <CartItemRow
-              key={product.product_id || product.id}
+              key={`${product.product_id || product.id}-${index}`}
               item={product}
               quantity={product.quantity || 1}
-              // --- QUAN TRỌNG: Truyền tiếp 2 hàm này xuống ---
               onUpdateQuantity={onUpdateQuantity}
               onRemove={onRemove}
               // ------------------------------------------------

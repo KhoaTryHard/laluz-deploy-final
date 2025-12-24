@@ -23,7 +23,7 @@ export default function CartPage() {
             if (data.items) setCartItems(data.items);
         } else {
             setIsLoggedIn(false);
-            const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
+            const localCart = JSON.parse(localStorage.getItem("laluz_cart") || "[]");
             if (localCart.length > 0) {
                  // Giả lập gọi API details hoặc hiển thị luôn nếu đủ data
                  // Để đơn giản test nút bấm, ta hiển thị localCart luôn (lưu ý localCart cần đủ trường name, price)
@@ -43,7 +43,6 @@ export default function CartPage() {
 
   // 2. Hàm Xử Lý Cập Nhật (Cần log để biết nó có chạy không)
   const handleUpdateQuantity = async (id, newQty) => {
-    console.log("--> CartPage nhận lệnh update:", id, "SL mới:", newQty); // DEBUG LOG
 
     if (newQty < 1) return;
 
@@ -70,12 +69,12 @@ export default function CartPage() {
         }
     } else {
         // Update LocalStorage
-        const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
+        const localCart = JSON.parse(localStorage.getItem("laluz_cart") || "[]");
         const updatedLocal = localCart.map(item => 
             (item.id || item.product_id) === id ? { ...item, quantity: newQty } : item
         );
-        localStorage.setItem("cart", JSON.stringify(updatedLocal));
-        window.dispatchEvent(new Event("storage"));
+        localStorage.setItem("laluz_cart", JSON.stringify(updatedLocal));
+        window.dispatchEvent(new Event("cartUpdated"));
     }
   };
 
@@ -89,10 +88,10 @@ export default function CartPage() {
               body: JSON.stringify({ product_id: id })
           });
       } else {
-          const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
+          const localCart = JSON.parse(localStorage.getItem("laluz_cart") || "[]");
           const updated = localCart.filter(i => (i.id || i.product_id) !== id);
-          localStorage.setItem("cart", JSON.stringify(updated));
-          window.dispatchEvent(new Event("storage"));
+          localStorage.setItem("laluz_cart", JSON.stringify(updated));
+          window.dispatchEvent(new Event("cartUpdated"));
       }
   };
 

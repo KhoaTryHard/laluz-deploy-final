@@ -64,11 +64,6 @@ export default function UsersTableClient({ users }) {
               <td>{new Date(u.created_at).toLocaleString("vi-VN")}</td>
 
               <td className="admin-actions">
-                <Link href={`/admin/users/${u.user_id}`} className="btn btn-sm">
-                  Sửa
-                </Link>
-
-                {/* 🔒 CHỈ HIỆN ĐỔI MK CHO CHÍNH MÌNH */}
                 {adminUser?.user_id === u.user_id && (
                   <Link
                     href={`/admin/users/${u.user_id}/password`}

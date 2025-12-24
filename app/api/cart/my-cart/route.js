@@ -11,16 +11,18 @@ export async function GET() {
     const token = cookieStore.get("auth_token")?.value;
 
     // Nếu không có token -> Trả về rỗng (để Frontend hiển thị giỏ hàng trống hoặc localStorage)
-    if (!token) return NextResponse.json({ items: [], coupon: null });
+    if (!token) {
+      return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
+    }
 
     let userId;
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        userId = decoded.userId;
+      const decoded = jwt.verify(token, JWT_SECRET);
+      userId = decoded.userId;
     } catch (e) {
-        return NextResponse.json({ items: [], coupon: null });
+      return NextResponse.json({ message: "UNAUTHORIZED" }, { status: 401 });
     }
-    
+
     // 1. Lấy items (Chỉ lấy giỏ hàng đang 'active')
     const sql = `
       SELECT 
@@ -41,10 +43,10 @@ export async function GET() {
     const items = await query({ query: sql, values: [userId] });
 
     // Format lại dữ liệu cho giống với cấu trúc localStorage để Frontend dễ xử lý
-    const formattedItems = items.map(item => ({
-        ...item,
-        price: Number(item.price), // Đảm bảo giá là số
-        image: item.image_url || "" 
+    const formattedItems = items.map((item) => ({
+      ...item,
+      price: Number(item.price), // Đảm bảo giá là số
+      image: item.image_url || "",
     }));
 
     // 2. Lấy coupon đang áp dụng (nếu có)
@@ -56,11 +58,10 @@ export async function GET() {
     `;
     const coupons = await query({ query: couponSql, values: [userId] });
 
-    return NextResponse.json({ 
-        items: formattedItems, 
-        coupon: coupons.length > 0 ? coupons[0] : null 
+    return NextResponse.json({
+      items: formattedItems,
+      coupon: coupons.length > 0 ? coupons[0] : null,
     });
-
   } catch (error) {
     console.error("My Cart Error:", error);
     return NextResponse.json({ items: [], coupon: null });

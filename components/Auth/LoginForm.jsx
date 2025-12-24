@@ -13,12 +13,15 @@ export default function LoginForm() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const LOCAL_CART_KEY = "laluz_cart";
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
+      // 1. LOGIN
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -31,32 +34,41 @@ export default function LoginForm() {
         throw new Error(data.message || "Đăng nhập thất bại");
       }
 
-      const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
+      // 2. AUTO SYNC CART
+      const raw = localStorage.getItem(LOCAL_CART_KEY);
+      const localCart = raw ? JSON.parse(raw) : [];
 
-      if (localCart.length > 0) {
-        // Gửi giỏ hàng local lên server để merge
-        await fetch("/api/cart/sync", {
+      const validItems = Array.isArray(localCart)
+        ? localCart.filter(
+            (i) => i && (i.product_id || i.id) && typeof i.quantity === "number"
+          )
+        : [];
+
+      if (validItems.length > 0) {
+        const syncRes = await fetch("/api/cart/sync", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include", // 🔥 BẮT BUỘC
           body: JSON.stringify({
-            localItems: localCart.map((i) => ({
-              product_id: i.id || i.product_id,
+            localItems: validItems.map((i) => ({
+              product_id: i.product_id || i.id,
               quantity: i.quantity,
             })),
           }),
         });
 
-        // Sau khi sync xong thì xóa local để tránh trùng lặp,
-        // từ giờ sẽ dùng giỏ hàng từ DB
-        localStorage.removeItem("cart");
+        if (syncRes.ok) {
+          localStorage.removeItem(LOCAL_CART_KEY);
+          window.dispatchEvent(new Event("cartUpdated"));
+        } else {
+          console.error("❌ Sync cart failed");
+        }
       }
 
-      window.dispatchEvent(new Event("auth-change"));
-
+      // 3. REDIRECT
       const userRole = data.user.role;
 
       if (userRole === "admin") {
-        // 🔐 LƯU ADMIN ĐANG ĐĂNG NHẬP
         localStorage.setItem(
           "admin_user",
           JSON.stringify({
@@ -65,11 +77,8 @@ export default function LoginForm() {
             role: data.user.role,
           })
         );
-
-        alert("Xin chào Admin! Đang vào trang quản trị...");
         router.push("/admin");
       } else {
-        alert("Đăng nhập thành công!");
         router.push("/");
       }
 
