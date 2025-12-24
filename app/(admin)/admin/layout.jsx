@@ -75,13 +75,16 @@ export default function AdminLayout({ children }) {
         </div>
       </header>
 
-      {/* ===== SIDEBAR ===== */}
-      <AdminSidebar />
+      {/* BODY */}
+      <div className="admin-body">
+        {/* ===== SIDEBAR ===== */}
+        <AdminSidebar />
 
-      <div className="overlay"></div>
+        <div className="overlay"></div>
 
-      {/* ===== MAIN ===== */}
-      <main className="main spc-hd main-default-page">{children}</main>
+        {/* ===== MAIN ===== */}
+        <main className="main spc-hd main-default-page">{children}</main>
+      </div>
     </AdminGuard>
   );
 }
