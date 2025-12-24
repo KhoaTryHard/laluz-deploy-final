@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { isLoggedIn } from "@/lib/auth";
+import { isLoggedIn } from "app/(site)/lib/auth";
 
 export function AccountGuard({ children }) {
   const router = useRouter();

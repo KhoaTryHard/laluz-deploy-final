@@ -3,6 +3,9 @@ import ProductVariation from "./ProductVariation";
 import ProductAddToCart from "./ProductAddToCart";
 
 export default function ProductSummary({ product }) {
+  
+  if (!product) return null;
+
   return (
     <>
       <h1 className="tt-prod-dt">{product.name}</h1>
@@ -28,8 +31,14 @@ export default function ProductSummary({ product }) {
       </a>
 
       <ProductPrice product={product} />
-      <ProductVariation options={product.variations} />
-      <ProductAddToCart />
+      
+      {/* Kiểm tra product.variations tồn tại trước khi truyền */}
+      <ProductVariation options={product.variations || []} />
+      
+      {/* --- SỬA LỖI TẠI ĐÂY --- */}
+      {/* Phải truyền prop product={product} xuống thì bên kia mới nhận được */}
+      <ProductAddToCart product={product} />
+      {/* ----------------------- */}
 
       <div className="hotline">
         HOTLINE TƯ VẤN <i className="fa-solid fa-phone-volume"></i>{" "}

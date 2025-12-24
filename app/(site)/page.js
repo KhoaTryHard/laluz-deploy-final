@@ -1,32 +1,160 @@
+import { cookies } from "next/headers"; // Dùng để lấy giới tính người dùng
 import HomeBanner from "@/components/Home/HomeBanner";
 import WhyChoose from "@/components/Home/WhyChoose";
 import ProductSlider from "@/components/Products/Slider/ProductSlider";
-import { homeStudio } from "@/data/homeStudio";
+import { query } from "@/lib/db";
 
-import { homeProducts } from "@/data/homeProducts";
+// --- 1. Helper Format tiền ---
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(amount);
+};
 
-export default function Home() {
+// --- 2. Các hàm truy vấn SQL ---
+
+// A. Lấy sản phẩm MỚI NHẤT (New Arrivals)
+async function getNewArrivals() {
+  try {
+    const sql = `
+      SELECT 
+        p.product_id, p.name, p.slug, p.price, 
+        b.name as brand_name,
+        pi.image_url
+      FROM PRODUCTS p
+      LEFT JOIN BRANDS b ON p.brand_id = b.brand_id
+      LEFT JOIN PRODUCT_IMAGES pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
+      ORDER BY p.created_at DESC 
+      LIMIT 10
+    `;
+    const products = await query({ query: sql, values: [] });
+    return mapData(products);
+  } catch (e) {
+    console.error("Lỗi lấy New Arrivals:", e);
+    return [];
+  }
+}
+
+// B. Lấy sản phẩm BÁN CHẠY (Best Sellers)
+// Vì DB chưa có bảng Orders hoàn chỉnh, ta tạm lấy những sp có giá trị cao (High-end) hoặc tồn kho thấp
+async function getBestSellers() {
+  try {
+    const sql = `
+      SELECT 
+        p.product_id, p.name, p.slug, p.price, 
+        b.name as brand_name,
+        pi.image_url
+      FROM PRODUCTS p
+      LEFT JOIN BRANDS b ON p.brand_id = b.brand_id
+      LEFT JOIN PRODUCT_IMAGES pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
+      ORDER BY p.price DESC 
+      LIMIT 10
+    `;
+    const products = await query({ query: sql, values: [] });
+    return mapData(products);
+  } catch (e) {
+    console.error("Lỗi lấy Best Sellers:", e);
+    return [];
+  }
+}
+
+// C. Lấy sản phẩm GỢI Ý (Theo giới tính User)
+async function getRecommendations(genderSlug) {
+  try {
+    // Nếu genderSlug không hợp lệ, mặc định về 'unisex'
+    const validSlugs = ['unisex', 'nuoc-hoa-nam', 'nuoc-hoa-nu'];
+    const safeSlug = validSlugs.includes(genderSlug) ? genderSlug : 'unisex';
+
+    const sql = `
+      SELECT 
+        p.product_id, p.name, p.slug, p.price, 
+        b.name as brand_name,
+        pi.image_url
+      FROM PRODUCTS p
+      JOIN CATEGORIES c ON p.category_id = c.category_id
+      LEFT JOIN BRANDS b ON p.brand_id = b.brand_id
+      LEFT JOIN PRODUCT_IMAGES pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
+      WHERE c.slug = ?
+      ORDER BY RAND() 
+      LIMIT 10
+    `;
+    // ORDER BY RAND(): Mỗi lần F5 sẽ gợi ý các sản phẩm khác nhau trong cùng giới tính
+    const products = await query({ query: sql, values: [safeSlug] });
+    return mapData(products);
+  } catch (e) {
+    console.error("Lỗi lấy Recommendations:", e);
+    return [];
+  }
+}
+
+// Helper: Map dữ liệu SQL sang format chuẩn
+function mapData(products) {
+  return products.map((p) => ({
+    id: p.product_id,
+    name: p.name,
+    slug: p.slug,
+    price: p.price ? formatCurrency(Number(p.price)) : "Liên hệ",
+    brand: p.brand_name || "Laluz Parfums",
+    image_url: p.image_url || "/images/products/default.webp",
+  }));
+}
+
+// --- 3. Component Trang Chủ ---
+export default async function Home() {
+  // Lấy Cookie để xem giới tính người dùng (nếu bạn có lưu)
+  // Nếu chưa có cookie, mặc định là 'unisex'
+  const cookieStore = await cookies();
+  const userGender = cookieStore.get("user_gender")?.value || "unisex";
+
+  // Gọi dữ liệu song song
+  const [newArrivals, bestSellers, recommended] = await Promise.all([
+    getNewArrivals(),
+    getBestSellers(),
+    getRecommendations(userGender),
+  ]);
+
   return (
-    <main className="main spc-hd ">
+    <main className="main spc-hd">
       <h1 className="mona-hidden-tt">
         LALUZ PARFUMS - Địa chỉ bán nước hoa chính hãng giá tốt
       </h1>
 
-      {/* WP wrapper */}
       <div className="has-banner">
         <HomeBanner />
 
-        <ProductSlider name={"nước hoa unisex"} products={homeProducts} />
+        {/* 1. SẢN PHẨM MỚI */}
+        {newArrivals.length > 0 && (
+          <ProductSlider 
+            name="SẢN PHẨM MỚI VỀ" 
+            link="/collections/all" 
+            products={newArrivals} 
+          />
+        )}
+        
         <HomeBanner />
 
-        <ProductSlider name={"nước hoa nam"} products={homeProducts} />
+        {/* 2. SẢN PHẨM BÁN CHẠY */}
+        {bestSellers.length > 0 && (
+          <ProductSlider 
+            name="SẢN PHẨM BÁN CHẠY" 
+            link="/collections/all?sort=best-seller" 
+            products={bestSellers} 
+          />
+        )}
+        
         <HomeBanner />
 
-        <ProductSlider name={"nước hoa nữ"} products={homeProducts} />
+        {/* 3. GỢI Ý THEO GIỚI TÍNH (Mặc định Unisex) */}
+        {recommended.length > 0 && (
+          <ProductSlider 
+            name="SẢN PHẨM ĐƯỢC GỢI Ý"
+            link={`/collections/${userGender}`} 
+            products={recommended} 
+          />
+        )}
 
         <WhyChoose />
-
-        {/* <ProductSlider name={"STUDIO"} products={homeStudio} /> */}
       </div>
     </main>
   );

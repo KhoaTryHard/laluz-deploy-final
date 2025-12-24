@@ -591,7 +591,6 @@ header.header .header-inner {
 .page-category .prod-flex {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 24px;
 }
 
 /* ----- CARD ----- */
@@ -627,6 +626,7 @@ header.header .header-inner {
 .page-category .wr-info {
     margin-top: 12px;
     text-align: left;
+    margin-bottom: 8px;
 }
 
 .page-category .txt-prod.tt {
@@ -724,7 +724,6 @@ header.header .header-inner {
 .page-category .prod-flex {
     display: grid !important;
     grid-template-columns: repeat(5, 1fr);
-    gap: 24px;
 }
 
 /* reset flex cũ */
@@ -883,7 +882,6 @@ header.header .header-inner {
 .page-category .prod-flex {
     display: grid !important;
     grid-template-columns: repeat(5, 1fr);
-    gap: 24px;
 }
 
 /* reset width cũ */
@@ -1266,8 +1264,8 @@ header.header .header-inner {
 .wrap-prod .prod-left {
     flex: 0 0 360px;
     /* ✅ CHỐT độ rộng giống web mẫu */
-    max-width: 360px;
-    width: 360px;
+    max-width: 300px;
+    width: 300px;
 }
 
 /* ===== GRID (CỘT PHẢI) ===== */

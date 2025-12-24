@@ -1,29 +1,30 @@
-// components/Cart/CartTable/CartTable.jsx
+"use client";
 import CartItemRow from "./CartItemRow";
 
-export default function CartTable() {
+// NHẬN PROPS TỪ CARTPAGE
+export default function CartTable({ cartItems, onUpdateQuantity, onRemove }) {
   return (
-    <div className="wc-block-components-main wc-block-cart__main wp-block-woocommerce-cart-items-block">
-      <table
-        className="wc-block-cart-items wp-block-woocommerce-cart-line-items-block"
-        tabIndex={-1}
-      >
+    <div className="table-responsive">
+      <table className="shop_table" style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
-          <tr className="wc-block-cart-items__header">
-            <th className="wc-block-cart-items__header-image">
-              <span>Sản phẩm</span>
-            </th>
-            <th className="wc-block-cart-items__header-product">
-              <span>Details</span>
-            </th>
-            <th className="wc-block-cart-items__header-total">
-              <span>Tổng</span>
-            </th>
+          <tr style={{ borderBottom: "2px solid #eee" }}>
+            <th style={{ textAlign: "left", padding: "10px" }}>Sản phẩm</th>
+            <th style={{ textAlign: "right", padding: "10px" }}>Tổng</th>
           </tr>
         </thead>
-
         <tbody>
-          <CartItemRow />
+          {/* DUYỆT QUA DANH SÁCH VÀ TRUYỀN HÀM XUỐNG CHO CARTITEMROW */}
+          {cartItems.map((product) => (
+            <CartItemRow
+              key={product.product_id || product.id}
+              item={product}
+              quantity={product.quantity || 1}
+              // --- QUAN TRỌNG: Truyền tiếp 2 hàm này xuống ---
+              onUpdateQuantity={onUpdateQuantity}
+              onRemove={onRemove}
+              // ------------------------------------------------
+            />
+          ))}
         </tbody>
       </table>
     </div>

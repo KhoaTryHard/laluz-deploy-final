@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
 
@@ -12,9 +14,8 @@ export default function ProductSlider({
 
   return (
     <section className="prods-home">
-      {/* WP: h2 KHÔNG nằm trong container */}
       <h2 className="tt-sec">
-        <a href={link}>{name}</a>
+        <Link href={link}>{name}</Link>
       </h2>
 
       <div className="wr-prods-home">
@@ -38,48 +39,58 @@ export default function ProductSlider({
         >
           {products.map((product, index) => (
             <SwiperSlide key={index}>
-              <div className="prod-it">
-                <div className="inner">
-                  <div className="bg"></div>
-
-                  <a className="img-prod" href={product.link}>
-                    <img
-                      src={product.image}
-                      width="900"
-                      height="900"
-                      className="attachment-full size-full wp-post-image"
-                      alt={product.name}
-                      loading="lazy"
-                    />
-                  </a>
-
-                  <div className="wr-info">
-                    <h3 className="txt-prod tt">
-                      <a className="prod-name" href={product.link}></a>
-                      <a href={product.brandLink}>{product.brand}</a>
-                    </h3>
-
-                    <a className="txt-prod stt" href={product.link}>
-                      {product.name}
-                    </a>
-
-                    <span className="txt-prod prc monawoo-price">
-                      <span className="woocommerce-Price-amount amount">
-                        <bdi>
-                          {product.price}
-                          <span className="woocommerce-Price-currencySymbol">
-                            ₫
-                          </span>
-                        </bdi>
-                      </span>
-                    </span>
-                  </div>
-                </div>
-              </div>
+              <ProductItem product={product} />
             </SwiperSlide>
           ))}
         </Swiper>
       </div>
     </section>
+  );
+}
+
+function ProductItem({ product }) {
+
+  const initialImage = product.image_url || product.image || "/images/products/default.webp";
+  const [imgSrc, setImgSrc] = useState(initialImage);
+  const productLink = product.slug ? `/products/${product.slug}` : "#";
+
+  return (
+    <div className="prod-it">
+      <div className="inner">
+        <div className="bg"></div>
+
+        <Link className="img-prod" href={productLink}>
+          <img
+            src={imgSrc}
+            width="900"
+            height="900"
+            className="attachment-full size-full wp-post-image"
+            alt={product.name}
+            loading="lazy"
+            style={{ objectFit: "cover" }} 
+            onError={() => setImgSrc("/images/products/default.webp")}
+          />
+        </Link>
+
+        <div className="wr-info">
+          <h3 className="txt-prod tt">
+            <Link className="prod-name" href={productLink}></Link>
+            <Link href={productLink}>{product.brand}</Link>
+          </h3>
+
+          <Link className="txt-prod stt" href={productLink}>
+            {product.name}
+          </Link>
+
+          <span className="txt-prod prc monawoo-price">
+            <span className="woocommerce-Price-amount amount">
+              <bdi>
+                {product.price}
+              </bdi>
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
   );
 }
