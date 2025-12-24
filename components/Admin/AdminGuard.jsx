@@ -11,7 +11,7 @@ export default function AdminGuard({ children }) {
 
   useEffect(() => {
     // 1. Nếu đang ở trang Login thì cho qua luôn, không cần check
-    if (pathname === "/admin/login") {
+    if (pathname === "/login") {
       setAuthorized(true);
       return;
     }
@@ -19,7 +19,7 @@ export default function AdminGuard({ children }) {
     // 2. Các trang khác thì mới check localStorage
     const user = localStorage.getItem("admin_user");
 
-    if (!user) {
+    if (!user || user.role !== "admin") {
       // Chưa đăng nhập -> Đá về Login
       router.push("/login");
       setAuthorized(false);
@@ -32,8 +32,17 @@ export default function AdminGuard({ children }) {
   // Màn hình chờ
   if (!authorized) {
     return (
-      <div style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
-        <div className="spinner" style={{marginBottom: '10px'}}></div> {/* Nếu có CSS spinner */}
+      <div
+        style={{
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+        }}
+      >
+        <div className="spinner" style={{ marginBottom: "10px" }}></div>{" "}
+        {/* Nếu có CSS spinner */}
         <p>Đang kiểm tra quyền truy cập...</p>
       </div>
     );

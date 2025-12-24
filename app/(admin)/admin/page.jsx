@@ -1,5 +1,6 @@
 import { query } from "@/lib/db"; // Import hàm kết nối DB
 import Link from "next/link";
+import RevenueCharts from "@/components/Admin/RevenueCharts";
 
 // 1. Hàm lấy dữ liệu thống kê từ SQL
 async function getAnalyticsData() {
@@ -8,17 +9,16 @@ async function getAnalyticsData() {
     const [ordersRes, revenueRes, usersRes, productsRes] = await Promise.all([
       // A. Tổng đơn hàng (Đếm số giỏ hàng đã chuyển đổi thành đơn)
       query({
-        query: "SELECT COUNT(*) as count FROM carts WHERE status = 'converted'",
+        query:
+          "SELECT COUNT(*) as count FROM orders WHERE status = 'completed'",
       }),
 
       // B. Doanh thu (Tính tổng tiền: giá * số lượng của các đơn đã xong)
       query({
         query: `
-          SELECT SUM(p.price * ci.quantity) as total 
-          FROM cart_items ci
-          JOIN products p ON ci.product_id = p.product_id
-          JOIN carts c ON ci.cart_id = c.cart_id
-          WHERE c.status = 'converted'
+          SELECT SUM(total_amount) AS totalRevenue
+          FROM orders
+          WHERE status = 'completed';
         `,
       }),
 
@@ -36,7 +36,7 @@ async function getAnalyticsData() {
     // Trả về object dữ liệu
     return {
       totalOrders: ordersRes[0].count || 0,
-      totalRevenue: revenueRes[0].total || 0,
+      totalRevenue: revenueRes[0].totalRevenue || 0,
       totalUsers: usersRes[0].count || 0,
       totalStock: productsRes[0].count || 0,
     };
@@ -128,6 +128,7 @@ export default async function AdminDashboard() {
           >
             Chức năng
           </h3>
+          <RevenueCharts />
 
           <div className="row" style={{ "--row-gap": "2rem" }}>
             <div className="col-xg-4 col-lg-4 col-md-6 col-sm-12">

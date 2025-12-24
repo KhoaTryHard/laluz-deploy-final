@@ -19,10 +19,16 @@ export default function AdminSidebar() {
     return pathname === item.href || pathname.startsWith(item.href + "/");
   };
 
-  // ✅ HÀM LOGOUT
-  const handleLogout = () => {
-    localStorage.removeItem("admin_user"); // xoá session admin
-    router.push("/"); // về trang chủ
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      window.dispatchEvent(new Event("auth-change"));
+      router.push("/login");
+      router.refresh();
+    } catch (error) {
+      console.error("Lỗi đăng xuất:", error);
+    }
   };
 
   return (

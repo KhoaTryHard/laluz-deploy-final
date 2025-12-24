@@ -1085,3 +1085,88 @@ body {
 .admin-logout-btn:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
+
+.dashboard-filter {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.dashboard-filter button {
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid #ddd;
+    background: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.dashboard-filter button.active {
+    background: #a48f82;
+    color: #fff;
+    border-color: #a48f82;
+}
+
+.chart-wrapper {
+    height: 360px;
+}
+
+/* ===============================
+   DASHBOARD REVENUE SELECT FIX
+================================ */
+
+.dashboard-selects {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 1.5rem 0;
+}
+
+.dashboard-selects select {
+    min-width: 120px;
+    height: 40px;
+
+    padding: 0 36px 0 14px;
+
+    border-radius: 999px;
+    border: 1.5px solid #d6c7bc;
+
+    background-color: #fff;
+    color: #5b4636;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9L12 15L18 9' stroke='%238c6d5a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 14px;
+}
+
+/* hover */
+.dashboard-selects select:hover {
+    border-color: #b38a6a;
+    cursor: pointer;
+}
+
+/* focus */
+.dashboard-selects select:focus {
+    outline: none;
+    border-color: #b38a6a;
+    box-shadow: 0 0 0 3px rgba(179, 138, 106, 0.2);
+}
+
+/* responsive */
+@media (max-width: 768px) {
+    .dashboard-selects {
+        flex-wrap: wrap;
+    }
+
+    .dashboard-selects select {
+        width: 100%;
+    }
+}
