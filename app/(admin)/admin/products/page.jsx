@@ -7,7 +7,8 @@ import DeleteProductButton from "./DeleteProductButton"; // Import nút xóa v�
 async function getProducts() {
   // Lấy dữ liệu và sắp xếp sản phẩm mới nhất lên đầu
   const products = await query({
-    query: "SELECT product_id, name, price, stock_quantity FROM PRODUCTS ORDER BY product_id DESC",
+    query:
+      "SELECT product_id, name, price, stock_quantity FROM PRODUCTS ORDER BY product_id DESC",
   });
   return products;
 }
@@ -25,20 +26,6 @@ export default async function AdminProductsPage() {
 
   return (
     <div className="container-laluz">
-      {/* BREADCRUMB */}
-      <div className="nav-bread">
-        <ul className="breadcrumbs-list">
-          <li className="breadcrumbs-item">
-            <Link href="/admin" className="breadcrumbs-link">
-              Admin
-            </Link>
-          </li>
-          <li className="breadcrumbs-item">
-            <span className="breadcrumbs-link">Sản phẩm</span>
-          </li>
-        </ul>
-      </div>
-
       {/* HEADER */}
       <div className="row">
         <div className="col-xg-6">
@@ -71,7 +58,7 @@ export default async function AdminProductsPage() {
               products.map((p) => (
                 <tr key={p.product_id}>
                   <td>#{p.product_id}</td>
-                  
+
                   {/* Tên sản phẩm */}
                   <td>
                     <strong>{p.name}</strong>
@@ -112,7 +99,10 @@ export default async function AdminProductsPage() {
               ))
             ) : (
               <tr>
-                <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
+                <td
+                  colSpan="6"
+                  style={{ textAlign: "center", padding: "20px" }}
+                >
                   Chưa có sản phẩm nào. Hãy thêm mới!
                 </td>
               </tr>

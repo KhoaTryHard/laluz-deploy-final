@@ -30,7 +30,7 @@ export default function LoginForm() {
       if (!res.ok) {
         throw new Error(data.message || "Đăng nhập thất bại");
       }
-      
+
       const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
 
       if (localCart.length > 0) {
@@ -56,11 +56,19 @@ export default function LoginForm() {
       const userRole = data.user.role;
 
       if (userRole === "admin") {
-        // Nếu là Admin -> Vào trang quản trị
+        // 🔐 LƯU ADMIN ĐANG ĐĂNG NHẬP
+        localStorage.setItem(
+          "admin_user",
+          JSON.stringify({
+            user_id: data.user.user_id,
+            email: data.user.email,
+            role: data.user.role,
+          })
+        );
+
         alert("Xin chào Admin! Đang vào trang quản trị...");
         router.push("/admin");
       } else {
-        // Nếu là Khách -> Về trang chủ
         alert("Đăng nhập thành công!");
         router.push("/");
       }

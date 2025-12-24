@@ -897,3 +897,191 @@ body {
 .admin-menu li a:hover {
     background: rgba(255, 255, 255, 0.2);
 }
+
+/* ===== EDIT PRODUCT PAGE ===== */
+
+.admin-edit-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.admin-edit-card {
+    background: #fff;
+    width: 100%;
+    max-width: 720px;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .08);
+}
+
+.admin-edit-card h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 28px;
+    text-align: center;
+}
+
+.admin-form .form-group {
+    margin-bottom: 18px;
+}
+
+.admin-form label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.admin-form input,
+.admin-form textarea,
+.admin-form select {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.admin-form textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.admin-form input:focus,
+.admin-form textarea:focus,
+.admin-form select:focus {
+    outline: none;
+    border-color: #9c8679;
+    box-shadow: 0 0 0 2px rgba(156, 134, 121, .2);
+}
+
+.admin-form .form-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 30px;
+}
+
+.admin-form .btn {
+    min-width: 160px;
+    height: 44px;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.form-admin {
+    max-width: 900px;
+    margin: 3rem auto;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.6rem;
+    font-size: 1.4rem;
+}
+
+.form-group textarea {
+    min-height: 120px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+/* === EDIT PRODUCT FORM (form-admin) === */
+.form-admin .form-group input,
+.form-admin .form-group textarea,
+.form-admin .form-group select {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14px;
+    background: #fff;
+}
+
+/* focus giống input */
+.form-admin .form-group input:focus,
+.form-admin .form-group textarea:focus,
+.form-admin .form-group select:focus {
+    outline: none;
+    border-color: #b57c57;
+    box-shadow: 0 0 0 2px rgba(181, 124, 87, 0.15);
+}
+
+/* làm select trông như input (mũi tên gọn) */
+.form-admin .form-group select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #666 50%),
+        linear-gradient(135deg, #666 50%, transparent 50%);
+    background-position: calc(100% - 18px) calc(50% - 2px),
+        calc(100% - 12px) calc(50% - 2px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+}
+
+.form-admin .form-group select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    background-color: #fff;
+}
+
+.form-admin .brand-add-row {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 110px;
+    gap: 10px;
+}
+
+.error-text {
+    margin-top: 6px;
+    color: #d32f2f;
+    font-size: 13px;
+}
+
+.admin-table select {
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.admin-logout-btn {
+    width: 100%;
+    padding: 14px 20px;
+    background: none;
+    border: none;
+    color: #fff;
+    text-align: left;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.admin-logout-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}

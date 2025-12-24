@@ -39,51 +39,15 @@ export default function AdminLayout({ children }) {
   return (
     // [QUAN TRỌNG] Bọc toàn bộ giao diện trong AdminGuard
     <AdminGuard>
-      {/* ===== HEADER ===== */}
-      <header className="header">
-        <div className="container">
-          <div className="header-inner">
-            <div className="hd-mid">
-              <div className="hd-mid-inner">
-                <div className="logo">
-                  <span className="tt-sec">ADMIN PANEL</span>
-                </div>
-
-                <div className="hd-mid-right">
-                  <div className="hd-mid-right-it">
-                    <div className="btn-ham-wr">
-                      <div className="btn-ham">
-                        <span className="line-ham"></span>
-                        <span className="line-ham"></span>
-                        <span className="line-ham"></span>
-                      </div>
-                    </div>
-                    <a
-                      href="/admin/login"
-                      className="hd-login"
-                      onClick={handleLogout}
-                    >
-                      <div className="ic-login">
-                        <i className="fas fa-user-circle fa-2x"></i>
-                      </div>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* BODY */}
-      <div className="admin-body">
+      <div className="admin-layout">
         {/* ===== SIDEBAR ===== */}
         <AdminSidebar />
 
         <div className="overlay"></div>
 
         {/* ===== MAIN ===== */}
-        <main className="main spc-hd main-default-page">{children}</main>
+        <main className="admin-content">{children}</main>
       </div>
     </AdminGuard>
   );

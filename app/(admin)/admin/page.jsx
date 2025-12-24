@@ -24,9 +24,9 @@ async function getAnalyticsData() {
 
       // C. Khách hàng mới (Đếm tổng user)
       query({
-        query: "SELECT COUNT(*) as count FROM USERS",
+        query: "SELECT COUNT(*) AS count FROM users WHERE role = ?",
+        values: ["customer"],
       }),
-
       // D. Sản phẩm tồn kho (Tổng số lượng tồn kho của tất cả sản phẩm)
       query({
         query: "SELECT SUM(stock_quantity) as count FROM PRODUCTS",
@@ -95,21 +95,6 @@ export default async function AdminDashboard() {
 
   return (
     <div className="container-laluz">
-      {/* Breadcrumbs */}
-      <div className="nav-bread">
-        <ul className="breadcrumbs-list">
-          <li className="breadcrumbs-item">
-            <a href="/" className="breadcrumbs-link">Home</a>
-          </li>
-          <li className="breadcrumbs-item">
-            <a href="/admin" className="breadcrumbs-link">Admin</a>
-          </li>
-          <li className="breadcrumbs-item">
-            <span className="breadcrumbs-link">Dashboard</span>
-          </li>
-        </ul>
-      </div>
-
       <div className="row" style={{ paddingTop: "var(--spc-sect)" }}>
         <div className="col-xg-12 col-lg-12 col-md-12">
           <h2 className="tt-sec" style={{ marginBottom: "3rem" }}>
@@ -146,7 +131,7 @@ export default async function AdminDashboard() {
 
           <div className="row" style={{ "--row-gap": "2rem" }}>
             <div className="col-xg-4 col-lg-4 col-md-6 col-sm-12">
-              <Link href="/admin/products"> 
+              <Link href="/admin/products">
                 <button
                   className="btn btn-second"
                   style={{ width: "100%", minHeight: "5rem" }}
