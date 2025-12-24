@@ -2,10 +2,11 @@
 
 import { useEffect } from "react";
 // Import Component bảo vệ
-import AdminGuard from "@/components/Admin/AdminGuard"; 
+import AdminGuard from "@/components/Admin/AdminGuard";
 import "./admin.css";
 import "./style.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import AdminSidebar from "../admin/components/AdminSidebar";
 
 export default function AdminLayout({ children }) {
   useEffect(() => {
@@ -57,7 +58,11 @@ export default function AdminLayout({ children }) {
                         <span className="line-ham"></span>
                       </div>
                     </div>
-                    <a href="/admin/login" className="hd-login" onClick={handleLogout}>
+                    <a
+                      href="/admin/login"
+                      className="hd-login"
+                      onClick={handleLogout}
+                    >
                       <div className="ic-login">
                         <i className="fas fa-user-circle fa-2x"></i>
                       </div>
@@ -71,40 +76,7 @@ export default function AdminLayout({ children }) {
       </header>
 
       {/* ===== SIDEBAR ===== */}
-      <div className="menu-mb">
-        <div className="menu-mb-action">
-          <nav className="nav-menu">
-            <ul className="menu-list flex-col-mn">
-              <li className="menu-item">
-                <a href="/admin" className="menu-link txt-mn">
-                  <i className="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-              </li>
-              <li className="menu-item">
-                <a href="/admin/products" className="menu-link txt-mn">
-                  <i className="fas fa-box"></i> Quản lý Sản phẩm
-                </a>
-              </li>
-              <li className="menu-item">
-                <a href="/admin/orders" className="menu-link txt-mn">
-                  <i className="fas fa-shopping-cart"></i> Quản lý Đơn hàng
-                </a>
-              </li>
-              <li className="menu-item">
-                <a href="/admin/users" className="menu-link txt-mn">
-                  <i className="fas fa-users"></i> Quản lý Người dùng
-                </a>
-              </li>
-              <li className="menu-item">
-                {/* Thêm sự kiện onClick để xóa dữ liệu khi đăng xuất */}
-                <a href="/admin/login" className="menu-link txt-mn" onClick={handleLogout}>
-                  <i className="fas fa-sign-out-alt"></i> Đăng xuất
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
+      <AdminSidebar />
 
       <div className="overlay"></div>
 
