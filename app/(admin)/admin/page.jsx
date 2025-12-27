@@ -31,7 +31,7 @@ async function getAnalyticsData() {
       }),
       // D. Sản phẩm tồn kho (Tổng số lượng tồn kho của tất cả sản phẩm)
       query({
-        query: "SELECT SUM(stock_quantity) as count FROM PRODUCTS",
+        query: "SELECT SUM(stock_quantity) as count FROM products",
       }),
     ]);
 

@@ -22,7 +22,7 @@ async function getNewArrivals() {
         p.product_id, p.name, p.slug, p.price, 
         b.name as brand_name,
         pi.image_url
-      FROM PRODUCTS p
+      FROM productsp
       LEFT JOIN BRANDS b ON p.brand_id = b.brand_id
       LEFT JOIN PRODUCT_IMAGES pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
       ORDER BY p.created_at DESC 

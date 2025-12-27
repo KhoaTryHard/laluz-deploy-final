@@ -8,7 +8,7 @@ async function getProducts() {
   // Lấy dữ liệu và sắp xếp sản phẩm mới nhất lên đầu
   const products = await query({
     query:
-      "SELECT product_id, name, price, stock_quantity FROM PRODUCTS ORDER BY product_id DESC",
+      "SELECT product_id, name, price, stock_quantity FROM products ORDER BY product_id DESC",
   });
   return products;
 }

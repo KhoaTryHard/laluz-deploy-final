@@ -12,6 +12,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import Header from "@/components/Header";
 import Footer from "@/components/UI/Footer/Footer";
+import { Suspense } from "react";
 
 export const metadata = {
   title: "LALUZ PARFUMS",
@@ -21,7 +22,9 @@ export const metadata = {
 export default function SiteLayout({ children }) {
   return (
     <>
-      <Header />
+      <Suspense fallback={null}>
+        <Header />
+      </Suspense>
       {children}
       <Footer />
     </>

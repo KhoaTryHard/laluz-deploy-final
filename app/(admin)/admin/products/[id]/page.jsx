@@ -6,7 +6,7 @@ import EditProductForm from "./EditProductForm"; // Import form vừa tạo
 async function getProduct(id) {
   // 1. Lấy thông tin product
   const products = await query({
-    query: "SELECT * FROM PRODUCTS WHERE product_id = ?",
+    query: "SELECT * FROM products WHERE product_id = ?",
     values: [id],
   });
 
