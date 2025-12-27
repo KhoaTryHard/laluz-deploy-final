@@ -1,6 +1,6 @@
 "use client";
 
-import { updateProfile } from "@/lib/account";
+// import { updateProfile } from "@/lib/account";
 
 export default function AccountProfileForm() {
   async function handleSubmit(e) {
