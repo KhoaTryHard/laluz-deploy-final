@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function ProductDetailLayout({ gallery, summary, info }) {
   return (
     <section className="prod-dt">
@@ -33,9 +35,9 @@ export default function ProductDetailLayout({ gallery, summary, info }) {
                           <p className="txt">
                             {it.label}
                             {it.href ? (
-                              <a href={it.href} className="brand-link">
+                              <Link href={it.href} className="brand-link">
                                 {it.value}
-                              </a>
+                              </Link>
                             ) : (
                               it.value
                             )}

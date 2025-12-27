@@ -7,27 +7,37 @@ import { useRouter, usePathname } from "next/navigation"; // [!code highlight] T
 export default function AdminGuard({ children }) {
   const router = useRouter();
   const pathname = usePathname(); // [!code highlight] Lấy đường dẫn hiện tại
-  const [authorized, setAuthorized] = useState(false);
+  const [authorized, setAuthorized] = useState("checking");
 
   useEffect(() => {
-    // 1. Nếu đang ở trang Login thì cho qua luôn, không cần check
-    if (pathname === "/login") {
-      setAuthorized(true);
-      return;
-    }
+  if (pathname === "/login") {
+    setAuthorized(true);
+    return;
+  }
 
-    // 2. Các trang khác thì mới check localStorage
-    const user = localStorage.getItem("admin_user");
+  const raw = localStorage.getItem("admin_user");
 
-    if (!user || user.role !== "admin") {
-      // Chưa đăng nhập -> Đá về Login
+  if (!raw) {
+    router.push("/login");
+    setAuthorized(false);
+    return;
+  }
+
+  try {
+    const user = JSON.parse(raw);
+
+    if (user.role !== "admin") {
       router.push("/login");
       setAuthorized(false);
     } else {
-      // Đã đăng nhập -> Cho phép vào
       setAuthorized(true);
     }
-  }, [router, pathname]);
+  } catch (error) {
+    console.error("AdminGuard parse error:", error);
+    router.push("/login");
+    setAuthorized(false);
+  }
+}, [router, pathname]);
 
   // Màn hình chờ
   if (!authorized) {

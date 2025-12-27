@@ -68,6 +68,23 @@ export default function OrderDetailPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [cancelLoading, setCancelLoading] = useState(false);
+
+  const cancelBtnStyle = {
+    padding: "10px 20px",
+    backgroundColor: "#dc3545",
+    color: "#fff",
+    border: "none",
+    borderRadius: "5px",
+    fontWeight: "600",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    fontSize: "0.9rem",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: "15px",
+  };
 
   useEffect(() => {
     if (!params?.id) return;
@@ -94,19 +111,19 @@ export default function OrderDetailPage() {
   if (loading)
     return (
       <div style={{ padding: "50px", textAlign: "center" }}>
-        ⏳ Đang tải chi tiết đơn hàng...
+        Đang tải chi tiết đơn hàng...
       </div>
     );
   if (error)
     return (
       <div style={{ padding: "50px", color: "red", textAlign: "center" }}>
-        ⚠️ Lỗi: {error}
+        Lỗi: {error}
       </div>
     );
   if (!data)
     return (
       <div style={{ padding: "50px", textAlign: "center" }}>
-        ❌ Không tìm thấy dữ liệu
+        Không tìm thấy dữ liệu
       </div>
     );
 
@@ -365,8 +382,17 @@ export default function OrderDetailPage() {
                     </table>
                   </div>
 
-                  {/* Nút Quay lại */}
-                  <div style={{ marginTop: "30px" }}>
+                  {/* Nút Quay lại & Hủy đơn hàng */}
+                  <div
+                    style={{
+                      marginTop: "30px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      borderTop: "1px solid #eee",
+                      paddingTop: "20px",
+                    }}
+                  >
                     <Link
                       href="/account/orders"
                       style={{
@@ -380,6 +406,64 @@ export default function OrderDetailPage() {
                     >
                       Quay lại danh sách
                     </Link>
+
+                    {orderInfo?.status?.toLowerCase() === "pending" && (
+                      <button
+                        disabled={cancelLoading}
+                        style={{
+                          ...cancelBtnStyle,
+                          opacity: cancelLoading ? 0.7 : 1,
+                          cursor: cancelLoading ? "not-allowed" : "pointer",
+                        }}
+                        onClick={async () => {
+                          if (
+                            !confirm("Bạn có chắc chắn muốn hủy đơn hàng này?")
+                          )
+                            return;
+
+                          try {
+                            setCancelLoading(true);
+                            const res = await fetch("/api/orders/cancel", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                order_id: orderInfo.order_id,
+                                reason: "Khách hàng tự hủy",
+                              }),
+                            });
+
+                            const result = await res.json();
+
+                            if (res.ok) {
+                              alert("Hủy đơn hàng thành công!");
+                              // Cập nhật state tại chỗ thay vì reload trang
+                              setData((prev) => ({
+                                ...prev,
+                                orderInfo: {
+                                  ...prev.orderInfo,
+                                  status: "cancelled",
+                                },
+                              }));
+                            } else {
+                              alert(result.message || "Không thể hủy đơn hàng");
+                            }
+                          } catch (err) {
+                            alert("Có lỗi kết nối khi hủy đơn hàng");
+                          } finally {
+                            setCancelLoading(false);
+                          }
+                        }}
+                      >
+                        {cancelLoading ? (
+                          <>
+                            <span style={{ marginRight: "8px" }}>⌛</span> Đang
+                            xử lý...
+                          </>
+                        ) : (
+                          "Hủy đơn hàng"
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

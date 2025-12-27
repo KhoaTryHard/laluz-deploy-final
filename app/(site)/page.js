@@ -37,21 +37,28 @@ async function getNewArrivals() {
 }
 
 // B. Lấy sản phẩm BÁN CHẠY (Best Sellers)
-// Vì DB chưa có bảng Orders hoàn chỉnh, ta tạm lấy những sp có giá trị cao (High-end) hoặc tồn kho thấp
 async function getBestSellers() {
   try {
     const sql = `
       SELECT 
         p.product_id, p.name, p.slug, p.price, 
         b.name as brand_name,
-        pi.image_url
+        pi.image_url,
+        SUM(oi.quantity) as total_sold
       FROM PRODUCTS p
+      JOIN ORDER_ITEMS oi ON p.product_id = oi.product_id
+      JOIN ORDERS o ON oi.order_id = o.order_id
       LEFT JOIN BRANDS b ON p.brand_id = b.brand_id
       LEFT JOIN PRODUCT_IMAGES pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
-      ORDER BY p.price DESC 
+      GROUP BY p.product_id
+      ORDER BY total_sold DESC 
       LIMIT 10
     `;
     const products = await query({ query: sql, values: [] });
+
+    // Nếu chưa có đơn hàng nào, trả về danh sách trống hoặc fallback về sản phẩm giá cao
+    if (products.length === 0) return getFallbackProducts();
+
     return mapData(products);
   } catch (e) {
     console.error("Lỗi lấy Best Sellers:", e);
@@ -63,8 +70,8 @@ async function getBestSellers() {
 async function getRecommendations(genderSlug) {
   try {
     // Nếu genderSlug không hợp lệ, mặc định về 'unisex'
-    const validSlugs = ['unisex', 'nuoc-hoa-nam', 'nuoc-hoa-nu'];
-    const safeSlug = validSlugs.includes(genderSlug) ? genderSlug : 'unisex';
+    const validSlugs = ["unisex", "nuoc-hoa-nam", "nuoc-hoa-nu"];
+    const safeSlug = validSlugs.includes(genderSlug) ? genderSlug : "unisex";
 
     const sql = `
       SELECT 
@@ -105,7 +112,7 @@ export default async function Home() {
   // Lấy Cookie để xem giới tính người dùng (nếu bạn có lưu)
   // Nếu chưa có cookie, mặc định là 'unisex'
   const cookieStore = await cookies();
-  const userGender = cookieStore.get("user_gender")?.value || "unisex";
+  const userGender = cookieStore.get("user_gender")?.value || "Unisex";
 
   // Gọi dữ liệu song song
   const [newArrivals, bestSellers, recommended] = await Promise.all([
@@ -125,32 +132,32 @@ export default async function Home() {
 
         {/* 1. SẢN PHẨM MỚI */}
         {newArrivals.length > 0 && (
-          <ProductSlider 
-            name="SẢN PHẨM MỚI VỀ" 
-            link="/collections/all" 
-            products={newArrivals} 
+          <ProductSlider
+            name="SẢN PHẨM MỚI VỀ"
+            link="/collections/all"
+            products={newArrivals}
           />
         )}
-        
+
         <HomeBanner />
 
         {/* 2. SẢN PHẨM BÁN CHẠY */}
         {bestSellers.length > 0 && (
-          <ProductSlider 
-            name="SẢN PHẨM BÁN CHẠY" 
-            link="/collections/all?sort=best-seller" 
-            products={bestSellers} 
+          <ProductSlider
+            name="SẢN PHẨM BÁN CHẠY"
+            link="/collections/all"
+            products={bestSellers}
           />
         )}
-        
+
         <HomeBanner />
 
         {/* 3. GỢI Ý THEO GIỚI TÍNH (Mặc định Unisex) */}
         {recommended.length > 0 && (
-          <ProductSlider 
+          <ProductSlider
             name="SẢN PHẨM ĐƯỢC GỢI Ý"
-            link={`/collections/${userGender}`} 
-            products={recommended} 
+            link={`/collections/all?gender=${userGender}`}
+            products={recommended}
           />
         )}
 

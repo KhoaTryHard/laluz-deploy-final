@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import HeaderTop from "./HeaderTop";
 import HeaderMid from "./HeaderMid";
 import HeaderBottom from "./HeaderBottom";
+import MobileMenu from "./MobileMenu";
 
 export default function Header() {
   const [isScroll, setIsScroll] = useState(false);
@@ -60,6 +61,7 @@ export default function Header() {
         <HeaderMid />
         <HeaderBottom />
       </div>
+    <MobileMenu />
     </header>
   );
 }

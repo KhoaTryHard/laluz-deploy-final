@@ -37,10 +37,7 @@ async function fetchServerCartCount() {
 
   if (!Array.isArray(data.items)) return 0;
 
-  return data.items.reduce(
-    (sum, it) => sum + (Number(it.quantity) || 0),
-    0
-  );
+  return data.items.reduce((sum, it) => sum + (Number(it.quantity) || 0), 0);
 }
 
 export default function HeaderMid() {
@@ -94,7 +91,12 @@ export default function HeaderMid() {
       <div className="container">
         <div className="hd-mid-inner">
           {/* Hamburger mobile */}
-          <div className="btn-ham-wr">
+          <div
+            className="btn-ham-wr"
+            onClick={() => {
+              document.body.classList.add("mobile-menu-open");
+            }}
+          >
             <div className="btn-ham">
               <span className="line-ham" />
               <span className="line-ham" />

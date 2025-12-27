@@ -3,7 +3,7 @@ import { query } from "@/lib/db";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = "laluz-secret-key-123"; // Phải khớp với bên Login
+const JWT_SECRET = "laluz-secret-key-123";
 
 // Helper: Hàm xác thực User từ Cookie
 async function getAuthenticatedUser() {
@@ -32,7 +32,8 @@ export async function GET() {
 
     // Query SQL bằng ID thật vừa lấy được
     const users = await query({
-      query: "SELECT full_name, email, phone_number, date_of_birth FROM users WHERE user_id = ?",
+      query:
+        "SELECT full_name, email, phone_number, date_of_birth, role FROM users WHERE user_id = ?",
       values: [userId],
     });
 
@@ -53,9 +54,9 @@ export async function GET() {
       name: user.full_name,
       email: user.email,
       phone: user.phone_number,
-      birthday: formattedDob, 
+      birthday: formattedDob,
+      role: user.role,
     });
-
   } catch (error) {
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
@@ -82,7 +83,6 @@ export async function PUT(request) {
     });
 
     return NextResponse.json({ message: "Cập nhật thành công!" });
-
   } catch (error) {
     return NextResponse.json({ message: error.message }, { status: 500 });
   }

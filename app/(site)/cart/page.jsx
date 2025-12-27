@@ -24,18 +24,12 @@ export default function CartPage() {
         } else {
             setIsLoggedIn(false);
             const localCart = JSON.parse(localStorage.getItem("laluz_cart") || "[]");
-            if (localCart.length > 0) {
-                 // Giả lập gọi API details hoặc hiển thị luôn nếu đủ data
-                 // Để đơn giản test nút bấm, ta hiển thị localCart luôn (lưu ý localCart cần đủ trường name, price)
-                 const ids = localCart.map(i => i.id || i.product_id);
-                 // Nếu cần fetch chi tiết thì fetch ở đây...
-                 setCartItems(localCart); 
-            }
+            setCartItems(localCart);
         }
       } catch (error) {
-        console.error("Lỗi tải giỏ hàng:", error);
+          console.error("Load cart error:", error);
       } finally {
-        setLoading(false);
+          setLoading(false);
       }
     };
     loadCart();
@@ -105,7 +99,7 @@ export default function CartPage() {
       <div className="container" style={{padding: '40px 0'}}>
         {/* ... Loading check ... */}
 
-        {!loading && cartItems.length > 0 && (
+        {loading ? cartItems.length > 0 && (
             <div className="cart-wrapper">
                 {/* --- SỬ DỤNG COMPONENT CARTTABLE --- */}
                 {/* Truyền dữ liệu và hàm xử lý vào đây */}
@@ -123,6 +117,37 @@ export default function CartPage() {
                     </Link>
                 </div>
             </div>
+        ) : (
+          /* --- GIAO DIỆN KHI GIỎ HÀNG TRỐNG --- */
+          <div className="cart-empty" style={{
+            textAlign: 'center',
+            padding: '40px 0',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '20px'
+          }}>
+            <div className="empty-icon" style={{ fontSize: '80px', color: '#ccc' }}>
+              <i className="fa-solid fa-cart-shopping"></i>
+            </div>
+            <h2 style={{ fontSize: '22px', fontWeight: '500' }}>Giỏ hàng của bạn đang trống</h2>
+            <p style={{ color: '#666', maxWidth: '400px', lineHeight: '1.6' }}>
+              Có vẻ như bạn chưa thêm sản phẩm nào vào giỏ hàng. 
+              Hãy khám phá các bộ sưu tập nước hoa mới nhất của LALUZ nhé!
+            </p>
+            <Link href="/collections/all" className="btn-back-to-shop" style={{
+              marginTop: '10px',
+              padding: '12px 30px',
+              background: '#9C8679', 
+              color: '#fff',
+              borderRadius: '4px',
+              textDecoration: 'none',
+              fontWeight: 'bold',
+              transition: '0.3s'
+            }}>
+              QUAY LẠI CỬA HÀNG
+            </Link>
+          </div>
         )}
       </div>
     </main>

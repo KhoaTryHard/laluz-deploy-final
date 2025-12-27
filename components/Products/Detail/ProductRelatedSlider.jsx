@@ -1,79 +1,98 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 
 export default function ProductRelatedSlider({ products = [] }) {
-  return (
-    <section className="prod-slide">
-      <div className="container">
-        <h3 className="tt">Sản phẩm liên quan</h3>
+  if (!products.length) return null;
 
-        <div className="prod-slide-wr">
+  return (
+    <div className="container">
+      <section className="prods-home prod-related">
+        <h3
+          className="tt"
+          style={{
+            color: "#242424",
+            fontSize: "2.4rem",
+            fontWeight: 500,
+            textTransform: "uppercase",
+            marginBottom: "2.5rem",
+          }}
+        >
+          Sản phẩm liên quan
+        </h3>
+
+        <div className="wr-prods-home">
           <Swiper
             modules={[Navigation]}
-            slidesPerView="auto"
-            spaceBetween={12}
+            slidesPerView={4}
+            spaceBetween={24}
             navigation={{
-              prevEl: ".prod-slide .btn-navi.prev",
-              nextEl: ".prod-slide .btn-navi.next",
+              prevEl: ".prod-related .btn-navi.prev",
+              nextEl: ".prod-related .btn-navi.next",
             }}
-            className="swiper swiper-prod"
+            className="swiper swiper-prod-home"
           >
-            <div className="swiper-wrapper">
-              {products.map((p, i) => (
-                <SwiperSlide
-                  key={i}
-                  className="swiper-slide"
-                  style={{ width: 190 }}
-                >
-                  <div className="prod-it">
-                    <div className="inner">
-                      <div className="bg"></div>
-
-                      <a className="img-prod" href={p.link}>
-                        <img src={p.image} alt={p.name} />
-                      </a>
-
-                      <div className="wr-info">
-                        <div className="txt-prod tt">
-                          <a href={p.brandLink}>{p.brand}</a>
-                        </div>
-
-                        <a className="txt-prod stt" href={p.link}>
-                          {p.name}
-                        </a>
-
-                        <span className="txt-prod prc">
-                          <div className="monawoo-price">
-                            <span className="woocommerce-Price-amount amount">
-                              <bdi>
-                                {p.price.toLocaleString()}&nbsp;
-                                <span className="woocommerce-Price-currencySymbol">
-                                  ₫
-                                </span>
-                              </bdi>
-                            </span>
-                          </div>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </SwiperSlide>
-              ))}
-            </div>
-
-            <div className="box-navi">
-              <div className="btn-navi prev">
-                <i className="fa-solid fa-angle-left"></i>
-              </div>
-              <div className="btn-navi next">
-                <i className="fa-solid fa-angle-right"></i>
-              </div>
-            </div>
+            {products.map((product, index) => (
+              <SwiperSlide key={index}>
+                <ProductItem product={product} />
+              </SwiperSlide>
+            ))}
           </Swiper>
         </div>
+      </section>
+    </div>
+  );
+}
+
+/* ===================== */
+/* MARKUP GIỐNG HỆT ProductSlider */
+/* ===================== */
+
+function ProductItem({ product }) {
+  const initialImage = product.image || "/images/products/default.webp";
+  const [imgSrc, setImgSrc] = useState(initialImage);
+
+  return (
+    <div className="prod-it">
+      <div className="inner">
+        <div className="bg"></div>
+
+        <Link className="img-prod" href={product.link}>
+          <img
+            src={imgSrc}
+            width="900"
+            height="900"
+            className="attachment-full size-full wp-post-image"
+            alt={product.name}
+            loading="lazy"
+            style={{ objectFit: "cover" }}
+            onError={() => setImgSrc("/images/products/default.webp")}
+          />
+        </Link>
+
+        <div className="wr-info">
+          <h3 className="txt-prod tt">
+            <Link className="prod-name" href={product.link}></Link>
+            <Link href={product.brandLink}>{product.brand}</Link>
+          </h3>
+
+          <Link className="txt-prod stt" href={product.link}>
+            {product.name}
+          </Link>
+
+          <span className="txt-prod prc monawoo-price">
+            <span className="woocommerce-Price-amount amount">
+              <bdi>
+                {Number(product.price).toLocaleString("vi-VN")}
+                <span className="woocommerce-Price-currencySymbol">₫</span>
+              </bdi>
+            </span>
+          </span>
+        </div>
       </div>
-    </section>
+    </div>
   );
 }

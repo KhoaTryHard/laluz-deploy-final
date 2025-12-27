@@ -328,7 +328,7 @@ export default function CheckoutPage() {
                             </td>
                         </tr>
 
-                        {/* Dòng Giảm giá (Chỉ hiện khi có coupon) */}
+                        {/* Dòng Giảm giá */}
                         {coupon && (
                             <tr>
                                 <td style={{ padding: "5px 0", color: 'green' }}>Giảm giá</td>

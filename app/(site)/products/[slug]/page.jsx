@@ -10,7 +10,7 @@ import ProductInfoTabs from "@/components/Products/Detail/ProductInfoTabs";
 import ProductReviews from "@/components/Products/Detail/ProductReviews";
 import ProductRelatedSlider from "@/components/Products/Detail/ProductRelatedSlider";
 
-export const dynamic = 'force-dynamic'; 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 // Hàm lấy dữ liệu từ SQL (Đã tối ưu chạy song song)
@@ -58,30 +58,64 @@ async function getProductData(slug) {
         LIMIT 4
       `,
       values: [product.brand_id, product.product_id],
-    })
+    }),
   ]);
 
   return { product, images, notes, related };
 }
 
+async function getRecommendedProducts(category_id, current_product_id) {
+  const products = await query({
+    query: `
+      SELECT p.product_id, p.name, p.slug, p.price, 
+             b.name as brand_name, pi.image_url
+      FROM PRODUCTS p
+      LEFT JOIN BRANDS b ON p.brand_id = b.brand_id
+      LEFT JOIN PRODUCT_IMAGES pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
+      WHERE p.category_id = ? AND p.product_id != ?
+      ORDER BY RAND() 
+      LIMIT 10
+    `,
+    values: [category_id, current_product_id],
+  });
+  
+  // Map dữ liệu sang format mà ProductRelatedSlider yêu cầu
+  return products.map(p => ({
+    name: p.name,
+    brand: p.brand_name || "Laluz Parfums",
+    brandLink: {
+        pathname: "/collections/all",
+        query: { brand: p.brand_name },
+    },
+    link: `/products/${p.slug}`,
+    image: p.image_url || "/images/products/default.webp",
+    price: parseFloat(p.price),
+  }));
+}
+
 // --- MAIN COMPONENT ---
 export default async function ProductDetailPage({ params }) {
   const { slug } = await params; // Next.js 15 yêu cầu await params
-
   const data = await getProductData(slug);
 
   if (!data) {
     notFound();
   }
 
+  const recommendedProducts = await getRecommendedProducts(
+    data.product.category_id, 
+    data.product.product_id
+  );
+
   const { product, images, notes, related } = data;
 
   // --- XỬ LÝ DỮ LIỆU ---
 
   // 1. Xử lý ảnh
-  const imageList = images.length > 0 
-    ? images.map(img => img.image_url) 
-    : ["/images/products/default.webp"];
+  const imageList =
+    images.length > 0
+      ? images.map((img) => img.image_url)
+      : ["/images/products/default.webp"];
 
   // 2. Format cho ProductSummary
   // Lưu ý: Đảm bảo ProductSummary là Client Component để xử lý nút "Thêm vào giỏ"
@@ -89,15 +123,15 @@ export default async function ProductDetailPage({ params }) {
     product_id: product.product_id, // Truyền đúng tên field để cartUtils dùng
     name: product.name,
     stock_quantity: product.stock_quantity,
-    price: Number(product.price), 
+    price: Number(product.price),
     image_url: imageList[0], // Truyền ảnh thumbnail để lưu vào cart
     variations: [
-      { 
-        id: product.volume_ml + "ml", 
-        label: `${product.volume_ml}ML`, 
-        price: Number(product.price), 
-        inStock: product.stock_quantity > 0 
-      }
+      {
+        id: product.volume_ml + "ml",
+        label: `${product.volume_ml}ML`,
+        price: Number(product.price),
+        inStock: product.stock_quantity > 0,
+      },
     ],
     images: imageList,
   };
@@ -107,10 +141,11 @@ export default async function ProductDetailPage({ params }) {
     {
       label: "Thương hiệu: ",
       value: product.brand_name || "Unknown",
-      href: `/brands/${product.brand_id}`,
-      icon: "/images/ic/ic-info-1.svg",
-    },
-    {
+      href: {
+        pathname: "/collections/all",
+        query: { brand: product.brand_name },
+        icon: "/images/ic/ic-info-1.svg",
+      },
       label: "Nồng độ: ",
       value: product.concentration || "EDP",
       icon: "/images/ic/ic-info-2.svg",
@@ -128,15 +163,27 @@ export default async function ProductDetailPage({ params }) {
     {
       label: "Giới tính: ",
       value: product.category_name || "Unisex",
-      href: `/collections/${product.category_id}`, 
+      href: {
+        pathname: "/collections/all",
+        query: { gender: product.category_name },
+      },
       icon: "/images/ic/ic-info-5.svg",
     },
   ];
 
   // 4. Tạo nội dung Tabs
-  const topNotes = notes.filter(n => n.note_type === 'Top').map(n => n.name).join(", ");
-  const midNotes = notes.filter(n => n.note_type === 'Middle').map(n => n.name).join(", ");
-  const baseNotes = notes.filter(n => n.note_type === 'Base').map(n => n.name).join(", ");
+  const topNotes = notes
+    .filter((n) => n.note_type === "Top")
+    .map((n) => n.name)
+    .join(", ");
+  const midNotes = notes
+    .filter((n) => n.note_type === "Middle")
+    .map((n) => n.name)
+    .join(", ");
+  const baseNotes = notes
+    .filter((n) => n.note_type === "Base")
+    .map((n) => n.name)
+    .join(", ");
 
   const descriptionContent = `
     <p>${product.description || ""}</p>
@@ -148,20 +195,20 @@ export default async function ProductDetailPage({ params }) {
 
   const tabs = [
     { title: "Mô tả sản phẩm", content: descriptionContent },
-    { 
-      title: "Sử dụng và bảo quản", 
-      content: `<p>– Xịt ở cổ tay, sau tai, gáy.</p><p>– Không chà xát sau khi xịt.</p>`, 
-      showMore: true 
+    {
+      title: "Sử dụng và bảo quản",
+      content: `<p>– Xịt ở cổ tay, sau tai, gáy.</p><p>– Không chà xát sau khi xịt.</p>`,
+      showMore: true,
     },
-    { 
-      title: "Vận chuyển và đổi trả", 
-      content: `<p>Miễn phí vận chuyển cho đơn hàng trên 1 triệu đồng.</p>`, 
-      showMore: true 
+    {
+      title: "Vận chuyển và đổi trả",
+      content: `<p>Miễn phí vận chuyển cho đơn hàng trên 1 triệu đồng.</p>`,
+      showMore: true,
     },
   ];
 
   // 5. Format Related Products
-  const relatedProducts = related.map(item => ({
+  const relatedProducts = related.map((item) => ({
     name: item.name,
     brand: item.brand_name,
     brandLink: "#",
@@ -171,10 +218,19 @@ export default async function ProductDetailPage({ params }) {
   }));
 
   const benefits = [
-    { icon: "/images/ic/imgi_292_ic-benefit-1.svg", text: "Cam kết chính hãng 100%" },
-    { icon: "/images/ic/imgi_293_ic-benefit-2-1.svg", text: "Chính sách đổi hàng" },
+    {
+      icon: "/images/ic/imgi_292_ic-benefit-1.svg",
+      text: "Cam kết chính hãng 100%",
+    },
+    {
+      icon: "/images/ic/imgi_293_ic-benefit-2-1.svg",
+      text: "Chính sách đổi hàng",
+    },
     { icon: "/images/ic/imgi_294_ic-benefit-3-1.svg", text: "Tư vấn miễn phí" },
-    { icon: "/images/ic/imgi_295_ic-benefit-4-1.svg", text: "Free ship đơn từ 1 triệu" },
+    {
+      icon: "/images/ic/imgi_295_ic-benefit-4-1.svg",
+      text: "Free ship đơn từ 1 triệu",
+    },
   ];
 
   return (
@@ -190,12 +246,12 @@ export default async function ProductDetailPage({ params }) {
       {/* Product Detail Layout */}
       <ProductDetailLayout
         gallery={<ProductGallery images={formattedProduct.images} />}
-        summary={<ProductSummary product={formattedProduct} />} 
+        summary={<ProductSummary product={formattedProduct} />}
         info={productInfo}
       />
-      
+
       <ProductInfoTabs tabs={tabs} benefits={benefits} />
-      
+
       <ProductReviews
         productId={product.product_id}
         productName={product.name}
@@ -203,7 +259,7 @@ export default async function ProductDetailPage({ params }) {
 
       {/* ĐÃ XÓA: ProductSummary thừa ở đây */}
 
-      <ProductRelatedSlider products={relatedProducts} />
+      <ProductRelatedSlider products={recommendedProducts} />
     </main>
   );
 }

@@ -6731,8 +6731,6 @@ button.alt:hover {
 }
 
 .brand-link {
-  display: flex;
-  flex-direction: column;
   align-items: center;
   height: 100%;
 }
@@ -6811,4 +6809,140 @@ button.alt:hover {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+}
+
+/* Sidebar Menu Mobile */
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 85%;
+  max-width: 300px;
+  height: 100vh;
+  background-color: #9C8679; /* Màu nâu chủ đạo */
+  z-index: 10001;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+  color: #fff;
+  padding: 20px 0;
+}
+
+body.mobile-menu-open .mobile-drawer {
+  transform: translateX(0);
+}
+
+body.mobile-menu-open .overlay {
+  display: block;
+  z-index: 10000;
+}
+
+/* Nút đóng */
+.btn-close-mb {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  padding: 0 20px;
+  cursor: pointer;
+  width: 100%;
+  text-align: right;
+}
+
+/* Danh sách menu */
+.mobile-menu-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.menu-item-mb {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.menu-item-mb a, 
+.menu-item-mb .flex-mn-mb,
+.menu-item-mb button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+}
+
+/* Sub-menu (Accordion) */
+.sub-menu-mb {
+  max-height: 0;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.05);
+  transition: max-height 0.3s ease;
+  list-style: none;
+  padding: 0;
+}
+
+.menu-item-mb.active .sub-menu-mb {
+  max-height: 500px; /* Độ cao tối đa khi mở */
+}
+
+.sub-menu-mb li button {
+  padding: 12px 40px;
+  font-size: 14px;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.divider {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.2);
+  margin: 15px 0;
+}
+
+.menu-item-mb.secondary a {
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.menu-item-mb.secondary i {
+  margin-right: 10px;
+  width: 20px;
+}
+
+.mobile-search {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255,255,255,.3);
+}
+
+.mobile-search input {
+  flex: 1;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 4px;
+  border: none;
+  font-size: 14px;
+}
+
+.mobile-search input:focus {
+  outline: none;
+}
+
+.mobile-search button {
+  width: 42px;
+  height: 42px;
+  border: none;
+  background: #000;
+  color: #fff;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
