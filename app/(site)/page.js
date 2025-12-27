@@ -45,11 +45,11 @@ async function getBestSellers() {
         b.name as brand_name,
         pi.image_url,
         SUM(oi.quantity) as total_sold
-      FROM PRODUCTS p
-      JOIN ORDER_ITEMS oi ON p.product_id = oi.product_id
-      JOIN ORDERS o ON oi.order_id = o.order_id
-      LEFT JOIN BRANDS b ON p.brand_id = b.brand_id
-      LEFT JOIN PRODUCT_IMAGES pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
+      FROM products p
+      JOIN order_items oi ON p.product_id = oi.product_id
+      JOIN orders o ON oi.order_id = o.order_id
+      LEFT JOIN brands b ON p.brand_id = b.brand_id
+      LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
       GROUP BY p.product_id
       ORDER BY total_sold DESC 
       LIMIT 10
@@ -78,10 +78,10 @@ async function getRecommendations(genderSlug) {
         p.product_id, p.name, p.slug, p.price, 
         b.name as brand_name,
         pi.image_url
-      FROM PRODUCTS p
-      JOIN CATEGORIES c ON p.category_id = c.category_id
-      LEFT JOIN BRANDS b ON p.brand_id = b.brand_id
-      LEFT JOIN PRODUCT_IMAGES pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
+      FROM products p
+      JOIN categories c ON p.category_id = c.category_id
+      LEFT JOIN brands b ON p.brand_id = b.brand_id
+      LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
       WHERE c.slug = ?
       ORDER BY RAND() 
       LIMIT 10

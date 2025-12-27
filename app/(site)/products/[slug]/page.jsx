@@ -19,9 +19,9 @@ async function getProductData(slug) {
   const products = await query({
     query: `
       SELECT p.*, b.name as brand_name, c.name as category_name
-      FROM PRODUCTS p 
-      LEFT JOIN BRANDS b ON p.brand_id = b.brand_id 
-      LEFT JOIN CATEGORIES c ON p.category_id = c.category_id
+      FROM products p 
+      LEFT JOIN brands b ON p.brand_id = b.brand_id 
+      LEFT JOIN categories c ON p.category_id = c.category_id
       WHERE p.slug = ?
     `,
     values: [slug],
@@ -51,9 +51,9 @@ async function getProductData(slug) {
     query({
       query: `
         SELECT p.product_id, p.name, p.slug, p.price, pi.image_url, b.name as brand_name 
-        FROM PRODUCTS p
-        LEFT JOIN BRANDS b ON p.brand_id = b.brand_id
-        LEFT JOIN PRODUCT_IMAGES pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
+        FROM products p
+        LEFT JOIN brands b ON p.brand_id = b.brand_id
+        LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
         WHERE p.brand_id = ? AND p.product_id != ?
         LIMIT 4
       `,
@@ -69,23 +69,23 @@ async function getRecommendedProducts(category_id, current_product_id) {
     query: `
       SELECT p.product_id, p.name, p.slug, p.price, 
              b.name as brand_name, pi.image_url
-      FROM PRODUCTS p
-      LEFT JOIN BRANDS b ON p.brand_id = b.brand_id
-      LEFT JOIN PRODUCT_IMAGES pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
+      FROM products p
+      LEFT JOIN brands b ON p.brand_id = b.brand_id
+      LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
       WHERE p.category_id = ? AND p.product_id != ?
       ORDER BY RAND() 
       LIMIT 10
     `,
     values: [category_id, current_product_id],
   });
-  
+
   // Map dữ liệu sang format mà ProductRelatedSlider yêu cầu
-  return products.map(p => ({
+  return products.map((p) => ({
     name: p.name,
     brand: p.brand_name || "Laluz Parfums",
     brandLink: {
-        pathname: "/collections/all",
-        query: { brand: p.brand_name },
+      pathname: "/collections/all",
+      query: { brand: p.brand_name },
     },
     link: `/products/${p.slug}`,
     image: p.image_url || "/images/products/default.webp",
@@ -103,7 +103,7 @@ export default async function ProductDetailPage({ params }) {
   }
 
   const recommendedProducts = await getRecommendedProducts(
-    data.product.category_id, 
+    data.product.category_id,
     data.product.product_id
   );
 
