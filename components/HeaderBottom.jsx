@@ -304,10 +304,7 @@ export default function HeaderBottom() {
                     </a>
                   </li>
                   <li className="menu-item parent fz16 fw6 dropdown menu-item menu-item-type-taxonomy menu-item-object-category">
-                    <a
-                      className="menu-link"
-                      href="/about-laluz"
-                    >
+                    <a className="menu-link" href="/about-laluz">
                       Kinh nghiệm chọn nước hoa
                     </a>
                   </li>

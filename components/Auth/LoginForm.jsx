@@ -127,7 +127,13 @@ export default function LoginForm() {
           </a>
         </div>
 
-        <button className="btn btn-pri" disabled={loading}>
+        <button
+          className="btn btn-pri"
+          disabled={loading}
+          onClick={() => {
+            router.refresh();
+          }}
+        >
           <span className="txt">{loading ? "Đang xử lý..." : "Đăng nhập"}</span>
         </button>
       </form>
