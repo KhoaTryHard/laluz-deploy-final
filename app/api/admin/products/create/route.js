@@ -82,7 +82,7 @@ async function processNotes(productId, noteString, noteType) {
 
     await query({
       query:
-        "INSERT INTO PRODUCT_NOTES (product_id, note_id, note_type) VALUES (?, ?, ?)",
+        "INSERT INTO product_notes (product_id, note_id, note_type) VALUES (?, ?, ?)",
       values: [productId, noteId, noteType],
     });
   }
