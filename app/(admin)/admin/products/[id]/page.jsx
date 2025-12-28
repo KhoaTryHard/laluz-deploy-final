@@ -1,10 +1,9 @@
 import { query } from "@/lib/db";
 import { notFound } from "next/navigation";
-import EditProductForm from "./EditProductForm"; // Import form vừa tạo
+import EditProductForm from "./EditProductForm";
 
-// Hàm lấy 1 sản phẩm theo ID
 async function getProduct(id) {
-  // 1. Lấy thông tin product
+  // 1. Product
   const products = await query({
     query: "SELECT * FROM products WHERE product_id = ?",
     values: [id],
@@ -13,11 +12,11 @@ async function getProduct(id) {
   if (products.length === 0) return null;
   const product = products[0];
 
-  // 2. Lấy danh sách ảnh
+  // 2. Images
   const images = await query({
     query: `
-      SELECT image_url 
-      FROM product_images 
+      SELECT image_url
+      FROM product_images
       WHERE product_id = ?
       ORDER BY is_thumbnail DESC, image_id ASC
     `,
@@ -26,33 +25,36 @@ async function getProduct(id) {
 
   const image_urls = images.map((i) => i.image_url).join(", ");
 
-  // 3. Lấy notes theo từng tầng
-  const notes = await query({
-    query: `
-      SELECT n.name, pn.note_type
-      FROM product_notes pn
-      JOIN NOTES n ON pn.note_id = n.note_id
-      WHERE pn.product_id = ?
-    `,
-    values: [id],
-  });
+  // 3. Notes (AN TOÀN – KHÔNG JOIN)
+  let notes = [];
+  try {
+    notes = await query({
+      query: `
+        SELECT *
+        FROM product_notes
+        WHERE product_id = ?
+      `,
+      values: [id],
+    });
+  } catch (err) {
+    console.warn("Skip product notes:", err.message);
+  }
 
   const top_notes = notes
     .filter((n) => n.note_type === "Top")
-    .map((n) => n.name)
+    .map((n) => n.note_name)
     .join(", ");
 
   const middle_notes = notes
     .filter((n) => n.note_type === "Middle")
-    .map((n) => n.name)
+    .map((n) => n.note_name)
     .join(", ");
 
   const base_notes = notes
     .filter((n) => n.note_type === "Base")
-    .map((n) => n.name)
+    .map((n) => n.note_name)
     .join(", ");
 
-  // 4. Trả về object hoàn chỉnh cho form
   return {
     ...product,
     price: Number(product.price),
@@ -64,30 +66,16 @@ async function getProduct(id) {
 }
 
 export default async function EditProductPage({ params }) {
-  // Next.js 15 bắt buộc await params
   const { id } = await params;
 
-  // Lấy dữ liệu từ SQL
   const product = await getProduct(id);
 
-  // Nếu không thấy sản phẩm -> trang 404
-  if (!product) {
-    notFound();
-  }
-
-  // Chuyển đổi dữ liệu Decimal/JSON nếu cần trước khi truyền qua Client Component
-  // (Với thư viện mysql2 thì số thường tự convert, nhưng để chắc chắn ta spread object)
-  const productPlain = {
-    ...product,
-    price: Number(product.price), // Chuyển Decimal sang Number để không lỗi React
-  };
+  if (!product) notFound();
 
   return (
     <div className="container-laluz">
       <h2 className="tt-sec">Sửa Sản Phẩm {product.name}</h2>
-
-      {/* Gọi Component Form và truyền dữ liệu vào */}
-      <EditProductForm product={productPlain} />
+      <EditProductForm product={product} />
     </div>
   );
 }
