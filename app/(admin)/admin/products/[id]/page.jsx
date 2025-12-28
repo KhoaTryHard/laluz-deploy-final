@@ -30,7 +30,7 @@ async function getProduct(id) {
   const notes = await query({
     query: `
       SELECT n.name, pn.note_type
-      FROM PRODUCT_NOTES pn
+      FROM product_notes pn
       JOIN NOTES n ON pn.note_id = n.note_id
       WHERE pn.product_id = ?
     `,
