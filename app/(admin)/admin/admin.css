@@ -825,8 +825,6 @@ body {
 
 .bar.unisex {
     background: linear-gradient(#6c5ce7, #a29bfe);
-<<<<<<< HEAD
-=======
 }
 
 /* ROOT */
@@ -1413,5 +1411,4 @@ body {
     to {
         opacity: 0;
     }
->>>>>>> 2712
 }
