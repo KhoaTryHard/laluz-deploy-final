@@ -1,11 +1,7 @@
-<<<<<<< HEAD
-// import AccountBreadcrumb from "@/components/Account/AccountBreadcrumb";s
-=======
 "use client";
 
 import { useState } from "react";
 import Breadcrumb from "@/components/UI/Breadcrumb";
->>>>>>> 2712
 import AccountSidebar from "@/components/Account/AccountSidebar";
 
 export default function ChangePasswordPage() {
