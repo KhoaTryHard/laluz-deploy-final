@@ -47,7 +47,7 @@ async function processNotes(productId, noteString, noteType) {
     // 3. Liên kết Product với Note
     await query({
       query:
-        "INSERT INTO PRODUCT_NOTES (product_id, note_id, note_type) VALUES (?, ?, ?)",
+        "INSERT INTO product_notes (product_id, note_id, note_type) VALUES (?, ?, ?)",
       values: [productId, noteId, noteType],
     });
   }
@@ -265,7 +265,7 @@ export async function PUT(request, { params }) {
 
     /* 4. DELETE OLD NOTES */
     await query({
-      query: "DELETE FROM PRODUCT_NOTES WHERE product_id = ?",
+      query: "DELETE FROM product_notes WHERE product_id = ?",
       values: [id],
     });
 
