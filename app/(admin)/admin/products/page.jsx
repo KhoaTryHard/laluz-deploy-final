@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-import { adminProducts } from "@/data/admin-products";
-
-export default function AdminProductsPage() {
-  const products = adminProducts;
-=======
 // app/(admin)/admin/products/page.jsx
 import { query } from "@/lib/db";
 import Link from "next/link";
@@ -70,19 +64,10 @@ export default async function AdminProductsPage({ searchParams }) {
       currency: "VND",
     }).format(price);
   };
->>>>>>> 2712
 
   return (
     <div className="container-laluz">
       {/* HEADER */}
-<<<<<<< HEAD
-      <div className="admin-header">
-        <h2 className="tt-sec">Quản Lý Sản Phẩm</h2>
-
-        <a href="/admin/products/create" className="btn btn-pri">
-          + Thêm sản phẩm
-        </a>
-=======
       <div className="row">
         <div className="col-xg-6">
           <h2 className="tt-sec">Quản Lý Sản Phẩm</h2>
@@ -93,7 +78,6 @@ export default async function AdminProductsPage({ searchParams }) {
             <i className="fas fa-plus-circle"></i> Thêm sản phẩm
           </Link>
         </div>
->>>>>>> 2712
       </div>
       {/* FILTER BAR */}
       <ProductFilterBar categories={categories} />
@@ -102,12 +86,7 @@ export default async function AdminProductsPage({ searchParams }) {
         <table className="admin-table">
           <thead>
             <tr>
-<<<<<<< HEAD
-              <th>#</th>
-              <th>Ảnh</th>
-=======
               <th>ID</th>
->>>>>>> 2712
               <th>Tên sản phẩm</th>
               <th>Giá</th>
               <th>Tồn kho</th>
@@ -117,41 +96,6 @@ export default async function AdminProductsPage({ searchParams }) {
           </thead>
 
           <tbody>
-<<<<<<< HEAD
-            {products.map((p, index) => (
-              <tr key={p.id}>
-                <td>{index + 1}</td>
-
-                {/* IMAGE */}
-                <td>
-                  <img
-                    src={p.images?.[0]}
-                    alt={p.name}
-                    className="admin-thumb"
-                  />
-                </td>
-
-                <td>{p.name}</td>
-                <td>{p.price}</td>
-                <td>{p.stock}</td>
-
-                <td>
-                  {p.status === "active" ? (
-                    <span className="status success">Đang bán</span>
-                  ) : (
-                    <span className="status danger">Hết hàng</span>
-                  )}
-                </td>
-
-                <td className="admin-actions">
-                  <a
-                    href={`/admin/products/${p.id}`}
-                    className="btn btn-second btn-sm"
-                  >
-                    Sửa
-                  </a>
-                  <button className="btn btn-four btn-sm">Xóa</button>
-=======
             {products.length > 0 ? (
               products.map((p) => (
                 <tr key={p.product_id}>
@@ -202,7 +146,6 @@ export default async function AdminProductsPage({ searchParams }) {
                   style={{ textAlign: "center", padding: "20px" }}
                 >
                   Chưa có sản phẩm nào. Hãy thêm mới!
->>>>>>> 2712
                 </td>
               </tr>
             )}
