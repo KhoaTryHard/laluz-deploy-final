@@ -1170,3 +1170,245 @@ body {
         width: 100%;
     }
 }
+
+.filter-bar {
+    display: flex;
+    gap: 12px;
+    margin: 16px 0;
+    align-items: center;
+}
+
+.filter-input {
+    flex: 1;
+    padding: 8px 12px;
+}
+
+.filter-select {
+    width: 220px;
+    padding: 8px;
+}
+
+/* ===== USER DETAIL PAGE ===== */
+
+.admin-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.4rem;
+}
+
+/* Card wrapper */
+.user-detail-card {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.4rem;
+}
+
+/* Info table */
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.2rem;
+}
+
+.info-table tr {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.info-table tr:last-child {
+    border-bottom: none;
+}
+
+.info-table td {
+    padding: 1.2rem 0;
+    font-size: 1.5rem;
+}
+
+.info-table td:first-child {
+    width: 160px;
+    color: #5f5f5f;
+    font-weight: 500;
+}
+
+.info-table td:last-child {
+    color: #000;
+    font-weight: 600;
+}
+
+/* Badge role */
+.badge {
+    display: inline-block;
+    padding: 0.3rem 1rem;
+    border-radius: 1.2rem;
+    background-color: #f3edea;
+    color: #9C8679;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+/* Orders empty state */
+.empty-orders {
+    padding: 2rem 0;
+    text-align: center;
+    color: #777;
+    font-size: 1.5rem;
+}
+
+/* Orders table spacing */
+.admin-table th,
+.admin-table td {
+    padding: 1.2rem 1rem;
+}
+
+.admin-table th {
+    background-color: #f8f8f8;
+    font-weight: 600;
+}
+
+/* Status pill */
+.status {
+    display: inline-block;
+    padding: 0.3rem 0.9rem;
+    border-radius: 1rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    background-color: #f1f1f1;
+    color: #555;
+}
+
+.order-detail .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+}
+
+.order-info {
+    margin-bottom: 3rem;
+}
+
+.order-info .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.order-info .info-item {
+    font-size: 1.6rem;
+    line-height: 2.6rem;
+}
+
+.order-info .info-item strong {
+    display: inline-block;
+    min-width: 90px;
+    color: #000;
+}
+
+.order-status {
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.order-status select {
+    height: 3.6rem;
+    padding: 0 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ddd;
+}
+
+.order-products .admin-table th {
+    background: #f6f6f6;
+}
+
+.order-products .admin-table td {
+    vertical-align: middle;
+}
+
+.order-total {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.order-total span {
+    color: #d33;
+    margin-left: 1rem;
+}
+
+@media (max-width: 768px) {
+    .order-info .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .order-detail .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+}
+
+/* ===== Order status control ===== */
+
+.order-status-control {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.order-status-control .admin-select {
+    min-width: 180px;
+    height: 3.6rem;
+}
+
+.order-status-control .btn {
+    height: 3.6rem;
+    padding: 0 1.6rem;
+    white-space: nowrap;
+}
+
+/* ===== Toast Notification ===== */
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 240px;
+    padding: 14px 18px;
+    border-radius: 6px;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: #fff;
+    z-index: 9999;
+    animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
+}
+
+.toast-success {
+    background-color: #4caf50;
+}
+
+.toast-error {
+    background-color: #e53935;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+    }
+}

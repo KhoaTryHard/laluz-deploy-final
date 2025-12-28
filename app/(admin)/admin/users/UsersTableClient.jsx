@@ -64,6 +64,16 @@ export default function UsersTableClient({ users }) {
               <td>{new Date(u.created_at).toLocaleString("vi-VN")}</td>
 
               <td className="admin-actions">
+                {/* 👁️ Xem thông tin (ai cũng xem được) */}
+                <Link
+                  href={`/admin/users/${u.user_id}`}
+                  className="btn btn-sm btn-second"
+                  style={{ marginRight: "6px" }}
+                >
+                  Xem
+                </Link>
+
+                {/* 🔑 Chỉ chính mình mới được đổi mật khẩu */}
                 {adminUser?.user_id === u.user_id && (
                   <Link
                     href={`/admin/users/${u.user_id}/password`}

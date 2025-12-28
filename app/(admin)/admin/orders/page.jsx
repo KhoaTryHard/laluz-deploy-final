@@ -16,6 +16,7 @@ export default async function AdminOrdersPage() {
       currency: "VND",
     }).format(v);
   console.log(orders);
+
   return (
     <div className="box-white">
       <div className="admin-header-row">

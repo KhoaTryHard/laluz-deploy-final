@@ -81,7 +81,7 @@ export async function POST(request) {
     // 1. INSERT PRODUCT
     const productResult = await query({
       query: `
-        INSERT INTO PRODUCTS (name, slug, price, stock_quantity, description, brand_id, volume_ml) 
+        INSERT INTO products (name, slug, price, stock_quantity, description, brand_id, volume_ml) 
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `,
       values: [
@@ -106,7 +106,7 @@ export async function POST(request) {
       for (let i = 0; i < urls.length; i++) {
         await query({
           query:
-            "INSERT INTO PRODUCT_IMAGES (product_id, image_url, is_thumbnail) VALUES (?, ?, ?)",
+            "INSERT INTO product_images (product_id, image_url, is_thumbnail) VALUES (?, ?, ?)",
           values: [newProductId, urls[i], i === 0 ? 1 : 0], // Ảnh đầu tiên là thumbnail
         });
       }
@@ -114,7 +114,7 @@ export async function POST(request) {
       // Nếu không có ảnh, thêm ảnh mặc định
       await query({
         query:
-          "INSERT INTO PRODUCT_IMAGES (product_id, image_url, is_thumbnail) VALUES (?, '/images/products/default.webp', 1)",
+          "INSERT INTO product_images (product_id, image_url, is_thumbnail) VALUES (?, '/images/products/default.webp', 1)",
         values: [newProductId],
       });
     }
@@ -144,16 +144,25 @@ export async function DELETE(request, { params }) {
   try {
     const { id } = await params;
 
-    // Xóa trong bảng PRODUCTS (Các bảng liên quan như images, notes
-    // nên được set CASCADE trong MySQL hoặc xóa thủ công nếu cần)
-    await query({
-      query: "DELETE FROM PRODUCTS WHERE product_id = ?",
+    const result = await query({
+      query: `
+        UPDATE products 
+        SET is_deleted = 1 
+        WHERE product_id = ?
+      `,
       values: [id],
     });
 
-    return NextResponse.json({ message: "Xóa thành công" });
+    if (result.affectedRows === 0) {
+      return NextResponse.json(
+        { message: "Sản phẩm không tồn tại" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ message: "Đã xóa sản phẩm (ẩn)" });
   } catch (error) {
-    console.error("Lỗi xóa sản phẩm:", error);
+    console.error("Lỗi xóa mềm sản phẩm:", error);
     return NextResponse.json(
       { message: "Lỗi server: " + error.message },
       { status: 500 }
@@ -216,7 +225,7 @@ export async function PUT(request, { params }) {
     /* 1. UPDATE PRODUCT */
     await query({
       query: `
-        UPDATE PRODUCTS
+        UPDATE products
         SET name = ?, price = ?, stock_quantity = ?, description = ?, brand_id = ?, volume_ml = ?
         WHERE product_id = ?
       `,
@@ -233,7 +242,7 @@ export async function PUT(request, { params }) {
 
     /* 2. DELETE OLD IMAGES */
     await query({
-      query: "DELETE FROM PRODUCT_IMAGES WHERE product_id = ?",
+      query: "DELETE FROM product_images WHERE product_id = ?",
       values: [id],
     });
 
@@ -246,7 +255,7 @@ export async function PUT(request, { params }) {
       for (let i = 0; i < urls.length; i++) {
         await query({
           query: `
-            INSERT INTO PRODUCT_IMAGES (product_id, image_url, is_thumbnail)
+            INSERT INTO product_images (product_id, image_url, is_thumbnail)
             VALUES (?, ?, ?)
           `,
           values: [id, urls[i], i === 0 ? 1 : 0],

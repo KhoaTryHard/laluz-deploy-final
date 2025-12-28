@@ -150,25 +150,27 @@ export default async function AdminDashboard() {
               <div className="col-xg-4 col-lg-4 col-md-6 col-sm-12">
                 <a href="/admin/orders">
                   <button
-                    className="btn btn-four"
+                    className="btn btn-second"
                     style={{ width: "100%", minHeight: "5rem" }}
                   >
                     <span className="txt">
-                      <i className="fas fa-clipboard-list"></i> Xem Đơn Hàng
+                      <i className="fas fa-plus-circle"></i> Xem Đơn Hàng
                     </span>
                   </button>
                 </a>
               </div>
 
               <div className="col-xg-4 col-lg-4 col-md-6 col-sm-12">
-                <button
-                  className="btn btn-pri"
-                  style={{ width: "100%", minHeight: "5rem" }}
-                >
-                  <span className="txt">
-                    <i className="fas fa-file-alt"></i> Quản lý Users
-                  </span>
-                </button>
+                <a href="/admin/users">
+                  <button
+                    className="btn btn-second"
+                    style={{ width: "100%", minHeight: "5rem" }}
+                  >
+                    <span className="txt">
+                      <i className="fas fa-plus-circle"></i> Quản Lí Người Dùng
+                    </span>
+                  </button>
+                </a>
               </div>
             </div>
           </div>

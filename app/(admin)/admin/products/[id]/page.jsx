@@ -17,7 +17,7 @@ async function getProduct(id) {
   const images = await query({
     query: `
       SELECT image_url 
-      FROM PRODUCT_IMAGES 
+      FROM product_images 
       WHERE product_id = ?
       ORDER BY is_thumbnail DESC, image_id ASC
     `,

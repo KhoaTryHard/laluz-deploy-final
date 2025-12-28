@@ -22,9 +22,9 @@ async function getNewArrivals() {
         p.product_id, p.name, p.slug, p.price, 
         b.name as brand_name,
         pi.image_url
-      FROM productsp
-      LEFT JOIN BRANDS b ON p.brand_id = b.brand_id
-      LEFT JOIN PRODUCT_IMAGES pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
+      FROM products p
+      LEFT JOIN brands b ON p.brand_id = b.brand_id
+      LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
       ORDER BY p.created_at DESC 
       LIMIT 10
     `;
@@ -41,22 +41,27 @@ async function getBestSellers() {
   try {
     const sql = `
       SELECT 
-        p.product_id, p.name, p.slug, p.price, 
-        b.name as brand_name,
-        pi.image_url,
-        SUM(oi.quantity) as total_sold
+        p.product_id,
+        MAX(p.name) AS name,
+        MAX(p.slug) AS slug,
+        MAX(p.price) AS price,
+        MAX(b.name) AS brand_name,
+        MAX(pi.image_url) AS image_url,
+        SUM(oi.quantity) AS total_sold
       FROM products p
       JOIN order_items oi ON p.product_id = oi.product_id
       JOIN orders o ON oi.order_id = o.order_id
       LEFT JOIN brands b ON p.brand_id = b.brand_id
-      LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
+      LEFT JOIN product_images pi 
+        ON p.product_id = pi.product_id 
+        AND pi.is_thumbnail = 1
       GROUP BY p.product_id
-      ORDER BY total_sold DESC 
+      ORDER BY total_sold DESC
       LIMIT 10
     `;
+
     const products = await query({ query: sql, values: [] });
 
-    // Nếu chưa có đơn hàng nào, trả về danh sách trống hoặc fallback về sản phẩm giá cao
     if (products.length === 0) return getFallbackProducts();
 
     return mapData(products);

@@ -34,7 +34,7 @@ async function getProductData(slug) {
   const [images, notes, related] = await Promise.all([
     // Query Ảnh
     query({
-      query: "SELECT image_url FROM PRODUCT_IMAGES WHERE product_id = ?",
+      query: "SELECT image_url FROM product_images WHERE product_id = ?",
       values: [product.product_id],
     }),
     // Query Note hương

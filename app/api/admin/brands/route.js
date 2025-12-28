@@ -4,7 +4,7 @@ import { query } from "@/lib/db";
 export async function GET() {
   try {
     const brands = await query({
-      query: "SELECT brand_id, name FROM BRANDS ORDER BY name ASC",
+      query: "SELECT brand_id, name FROM brands ORDER BY name ASC",
     });
     return NextResponse.json(brands);
   } catch (error) {
@@ -25,7 +25,7 @@ export async function POST(request) {
 
     // 1. Kiểm tra brand đã tồn tại chưa (tránh trùng)
     const existed = await query({
-      query: "SELECT brand_id, name FROM BRANDS WHERE LOWER(name) = LOWER(?)",
+      query: "SELECT brand_id, name FROM brands WHERE LOWER(name) = LOWER(?)",
       values: [name],
     });
 
@@ -36,7 +36,7 @@ export async function POST(request) {
 
     // 2. Insert brand mới
     const result = await query({
-      query: "INSERT INTO BRANDS (name) VALUES (?)",
+      query: "INSERT INTO brands (name) VALUES (?)",
       values: [name],
     });
 

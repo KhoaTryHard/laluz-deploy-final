@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import Toast from "../../components/Toast";
 
 export default function AdminOrderDetailPage() {
   const { id } = useParams(); // 👈 dùng id
@@ -11,6 +13,7 @@ export default function AdminOrderDetailPage() {
   const [order, setOrder] = useState(null);
   const [items, setItems] = useState([]);
   const [status, setStatus] = useState("");
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     if (!id) return;
@@ -50,13 +53,13 @@ export default function AdminOrderDetailPage() {
       });
 
       if (!res.ok) {
-        alert("Cập nhật thất bại");
+        setToast({ type: "error", message: "Cập nhật thất bại" });
         return;
       }
 
-      alert("Đã cập nhật trạng thái");
+      setToast({ type: "success", message: "Đã cập nhật trạng thái" });
     } catch (err) {
-      alert("Lỗi server");
+      setToast({ type: "error", message: "Lỗi server" });
     }
   };
 
@@ -75,74 +78,99 @@ export default function AdminOrderDetailPage() {
   }
 
   return (
-    <div className="box-white">
+    <div className="container-laluz">
       <div className="admin-header-row">
-        <h2>Chi tiết đơn hàng #{order.order_id}</h2>
-        <button
-          className="btn btn-second"
-          onClick={() => router.push("/admin/orders")}
-        >
+        <h2 className="tt-sec">Chi tiết đơn hàng #{order.order_id}</h2>
+        <Link href="/admin/orders" className="btn btn-four">
           ← Quay lại
-        </button>
+        </Link>
       </div>
 
-      <p>
-        <b>Email:</b> {order.email}
-      </p>
-      <p>
-        <b>Địa chỉ:</b> {order.shipping_address}
-      </p>
-      <p>
-        <b>SĐT:</b> {order.phone_number}
-      </p>
+      {/* Thông tin đơn hàng */}
+      <div
+        className="box-white user-detail-card"
+        style={{ marginBottom: "24px" }}
+      >
+        <table className="info-table">
+          <tbody>
+            <tr>
+              <td>Email</td>
+              <td>{order.email}</td>
+            </tr>
+            <tr>
+              <td>Địa chỉ</td>
+              <td>{order.shipping_address}</td>
+            </tr>
+            <tr>
+              <td>SĐT</td>
+              <td>{order.phone_number}</td>
+            </tr>
 
-      <div style={{ margin: "16px 0" }}>
-        <select
-          className="admin-select"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          <option value="pending">Chờ xác nhận</option>
-          <option value="preparing">Đang chuẩn bị</option>
-          <option value="shipping">Đang giao</option>
-          <option value="delivered">Đã giao</option>
-          <option value="completed">Hoàn thành</option>
-          <option value="cancelled">Huỷ</option>
-        </select>
-
-        <button className="btn btn-pri" onClick={updateStatus}>
-          Lưu
-        </button>
-      </div>
-
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th>Sản phẩm</th>
-            <th>Giá</th>
-            <th>SL</th>
-            <th>Tạm tính</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((it, idx) => (
-            <tr key={idx}>
-              <td>{it.name}</td>
-              <td>{formatMoney(it.price_at_purchase)}</td>
-              <td>{it.quantity}</td>
+            <tr>
+              <td>Trạng thái</td>
               <td>
-                {formatMoney(
-                  Number(it.price_at_purchase) * Number(it.quantity)
-                )}
+                <div className="order-status-control">
+                  <select
+                    className="admin-select"
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                  >
+                    <option value="pending">Chờ xác nhận</option>
+                    <option value="preparing">Đang chuẩn bị</option>
+                    <option value="shipping">Đang giao</option>
+                    <option value="delivered">Đã giao</option>
+                    <option value="completed">Hoàn thành</option>
+                    <option value="cancelled">Huỷ</option>
+                  </select>
+
+                  <button className="btn btn-pri" onClick={updateStatus}>
+                    Lưu
+                  </button>
+                </div>
               </td>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
 
-      <h3 style={{ textAlign: "right", marginTop: 20 }}>
-        Tổng tiền: {formatMoney(order.total_amount)}
-      </h3>
+      {/* Danh sách sản phẩm */}
+      <div className="box-white order-products">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>Sản phẩm</th>
+              <th>Giá</th>
+              <th>SL</th>
+              <th>Tạm tính</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((it, idx) => (
+              <tr key={idx}>
+                <td>{it.name}</td>
+                <td>{formatMoney(it.price_at_purchase)}</td>
+                <td>{it.quantity}</td>
+                <td>
+                  {formatMoney(
+                    Number(it.price_at_purchase) * Number(it.quantity)
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <h3 className="order-total">
+          Tổng tiền: <span>{formatMoney(order.total_amount)}</span>
+        </h3>
+      </div>
+      {toast && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

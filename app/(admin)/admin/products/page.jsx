@@ -2,19 +2,60 @@
 import { query } from "@/lib/db";
 import Link from "next/link";
 import DeleteProductButton from "./DeleteProductButton"; // Import nút xóa vừa tạo
+import ProductFilterBar from "../components/ProductFilterBar";
 
 // Hàm lấy danh sách sản phẩm từ SQL
-async function getProducts() {
-  // Lấy dữ liệu và sắp xếp sản phẩm mới nhất lên đầu
-  const products = await query({
-    query:
-      "SELECT product_id, name, price, stock_quantity FROM products ORDER BY product_id DESC",
+async function getProducts({ search = "", category = "" }) {
+  let sql = `
+    SELECT 
+      p.product_id,
+      p.name,
+      p.price,
+      p.stock_quantity,
+      p.category_id
+    FROM products p
+    WHERE p.is_deleted = 0
+  `;
+
+  const values = [];
+
+  // 🔍 Tìm theo tên
+  if (search) {
+    sql += " AND p.name LIKE ?";
+    values.push(`%${search}%`);
+  }
+
+  // 🗂 Lọc theo category
+  if (category === "null") {
+    sql += " AND p.category_id IS NULL";
+  } else if (category) {
+    sql += " AND p.category_id = ?";
+    values.push(category);
+  }
+
+  sql += " ORDER BY p.product_id DESC";
+
+  return query({ query: sql, values });
+}
+async function getCategories() {
+  return query({
+    query: `
+      SELECT category_id, name
+      FROM categories
+      ORDER BY name ASC
+    `,
   });
-  return products;
 }
 
-export default async function AdminProductsPage() {
-  const products = await getProducts();
+export default async function AdminProductsPage({ searchParams }) {
+  const params = await searchParams;
+
+  const products = await getProducts({
+    search: params.q || "",
+    category: params.category || "",
+  });
+
+  const categories = await getCategories();
 
   // Hàm format tiền tệ (VND)
   const formatPrice = (price) => {
@@ -38,7 +79,8 @@ export default async function AdminProductsPage() {
           </Link>
         </div>
       </div>
-
+      {/* FILTER BAR */}
+      <ProductFilterBar categories={categories} />
       {/* TABLE */}
       <div className="box-white">
         <table className="admin-table">
