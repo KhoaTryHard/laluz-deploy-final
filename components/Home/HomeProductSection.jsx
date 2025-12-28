@@ -11,7 +11,7 @@ export default function HomeProductSection() {
   return (
     <section className="prods-home">
       <h2 className="tt-sec">
-        <a href="https://laluz.vn/nuoc-hoa-unisex/">NƯỚC HOA UNISEX</a>
+        <a href="/collections/all?gender=Unisex">NƯỚC HOA UNISEX</a>
       </h2>
 
       <div className="wr-prods-home">

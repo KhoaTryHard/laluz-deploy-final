@@ -17764,3 +17764,12 @@ body[data-aos-easing=ease-in-out-quart] [data-aos] {
 .breadcrumb-sec {
     margin-top: 20px;
 }
+
+.menu-mega .brand-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.menu-mega .brand-it {
+  display: block;
+}

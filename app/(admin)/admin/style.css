@@ -6515,3 +6515,80 @@ button.alt:hover {
   align-items: center;
   flex-wrap: wrap;
 }
+
+
+/* ABOUT PAGE */
+/* =========================
+   ABOUT PAGE – FIX CHUẨN
+   ========================= */
+
+.about-page {
+  padding: 40px 0 80px;
+}
+
+/* Container giống web gốc */
+.about-page .container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  font-size: 14px;
+  margin: 20px auto;
+  max-width: 1200px;
+}
+
+/* Header */
+.about-header h1 {
+  font-size: 32px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.about-header hr {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 16px 0 30px;
+}
+
+/* ===== CONTENT – 1 CỘT DUY NHẤT ===== */
+.about-content {
+  max-width: 900px;
+  margin: 0 auto 30px;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #333;
+
+  /* FIX LỖI GRID */
+  display: block !important;
+}
+
+/* Founder */
+.about-founder {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.about-founder .founder {
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* Image */
+.about-image {
+  display: flex;
+  justify-content: center;
+}
+
+.about-image img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.nav-bread .breadcrumbs-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}

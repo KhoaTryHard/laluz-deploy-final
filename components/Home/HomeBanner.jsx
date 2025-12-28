@@ -6,15 +6,15 @@ import { Autoplay } from "swiper/modules";
 export default function HomeBanner() {
   const banners = [
     {
-      link: "https://laluz.vn/collections/all/",
+      link: "/collections/all/",
       img: "https://laluz.vn/wp-content/uploads/2024/12/Frame-549.jpg",
     },
     {
-      link: "https://laluz.vn/collections/all/",
+      link: "/collections/all/",
       img: "https://laluz.vn/wp-content/uploads/2024/12/Frame-550.jpg",
     },
     {
-      link: "https://laluz.vn/roja-parfums/",
+      link: "/roja-parfums/",
       img: "https://laluz.vn/wp-content/uploads/2024/12/Frame-551.jpg",
     },
   ];

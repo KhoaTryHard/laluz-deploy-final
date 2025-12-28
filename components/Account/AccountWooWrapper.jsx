@@ -2,27 +2,18 @@ import AccountProfileForm from "./AccountProfileForm";
 
 export default function AccountWooWrapper() {
   return (
-    <div className="info-acount-col-right col col-md-9">
+    <div className="info-acount-col-right col col-md-9 col-12">
       <div className="woocommerce">
-        <nav className="woocommerce-MyAccount-navigation">
-          <ul>
-            <li className="is-active">
-              <a href="/account">Thông tin sản phẩm</a>
-            </li>
-            <li>
-              <a href="/account/orders">Lịch sử đơn hàng</a>
-            </li>
-            <li>
-              <a href="/account/change-password">Thay đổi mật khẩu</a>
-            </li>
-          </ul>
-        </nav>
+        
+        {/* ĐÃ XÓA PHẦN <nav> Ở ĐÂY VÌ ĐÃ CÓ Ở SIDEBAR TRÁI */}
 
-        <div className="woocommerce-MyAccount-content">
+        <div className="woocommerce-MyAccount-content" style={{ width: '100%' }}>
           <div className="inner">
+            {/* Đây là nơi hiển thị nội dung chính (Form thông tin) */}
             <AccountProfileForm />
           </div>
         </div>
+        
       </div>
     </div>
   );

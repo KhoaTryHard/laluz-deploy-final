@@ -17,8 +17,13 @@ export default function AccountPage() {
       <section className="info-acount">
         <div className="container">
           <div className="info-acount-flex row">
+            {/* Cột Trái: Sidebar (Đã bao gồm User Info + Menu + Logout) */}
             <AccountSidebar />
-            <AccountWooWrapper />
+            
+            {/* Cột Phải: Nội dung chính (Form thông tin, hoặc danh sách đơn hàng...) */}
+            <div className="col col-md-9 col-12">
+                <AccountWooWrapper />
+            </div>
           </div>
         </div>
       </section>
