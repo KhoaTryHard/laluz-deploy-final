@@ -1,11 +1,11 @@
 "use client";
 
-<<<<<<< HEAD
+
 // import { updateProfile } from "@/lib/account";
-=======
+
 import { useState, useEffect } from "react";
 // Đã xóa import updateProfile cũ vì chúng ta dùng API trực tiếp
->>>>> >> 2712
+
 
 export default function AccountProfileForm() {
   // State lưu dữ liệu form
