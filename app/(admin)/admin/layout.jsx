@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect } from "react";
@@ -51,6 +50,5 @@ export default function AdminLayout({ children }) {
         <main className="admin-content">{children}</main>
       </div>
     </AdminGuard>
->>>>>>> 2712
   );
 }
