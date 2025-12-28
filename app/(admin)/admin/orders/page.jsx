@@ -1,9 +1,15 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 
 async function getOrders() {
-  const res = await fetch("/api/admin/orders", {
-    cache: "no-store",
-  });
+  const headersList = headers();
+  const host = headersList.get("host"); 
+  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+
+  const res = await fetch(
+    `${protocol}://${host}/api/admin/orders`,
+    { cache: "no-store" }
+  );
 
   if (!res.ok) {
     throw new Error("Failed to fetch orders");
