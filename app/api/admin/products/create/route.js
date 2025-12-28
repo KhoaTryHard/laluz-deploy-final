@@ -20,13 +20,13 @@ function createSlug(name) {
 async function getOrCreateBrandId(isNewBrand, existingId, newName) {
   console.log(">>> Đang xử lý Brand:", { isNewBrand, existingId, newName });
 
-  // 1. Dùng Brand cũ
+  // 1) Dùng Brand cũ
   if (!isNewBrand) {
     console.log("--> Dùng ID cũ:", existingId);
     return existingId;
   }
 
-  // 2. Tạo Brand mới
+  // 2) Tạo Brand mới
   if (!newName || !newName.trim()) {
     console.log("--> LỖI: Tên brand mới bị rỗng!");
     return null;
@@ -34,9 +34,9 @@ async function getOrCreateBrandId(isNewBrand, existingId, newName) {
 
   const cleanName = newName.trim();
 
-  // Kiểm tra tồn tại
+  // Kiểm tra tồn tại (dùng '=' an toàn hơn LIKE nếu bạn không cần fuzzy search)
   const existing = await query({
-    query: "SELECT brand_id FROM brands WHERE name LIKE ?",
+    query: "SELECT brand_id FROM brands WHERE name = ? LIMIT 1",
     values: [cleanName],
   });
 
@@ -55,35 +55,29 @@ async function getOrCreateBrandId(isNewBrand, existingId, newName) {
   return result.insertId;
 }
 
-// Hàm xử lý hương (Notes)
+/**
+ * Xử lý notes (AN TOÀN):
+ * - Không dùng bảng NOTES
+ * - Lưu trực tiếp note_name + note_type vào product_notes
+ */
 async function processNotes(productId, noteString, noteType) {
   if (!noteString || !noteString.trim()) return;
+
   const notesArr = noteString
     .split(",")
     .map((n) => n.trim())
-    .filter((n) => n);
+    .filter(Boolean);
 
-  for (const noteName of notesArr) {
-    let noteId;
-    const existingParams = await query({
-      query: "SELECT note_id FROM NOTES WHERE name = ?",
-      values: [noteName],
-    });
+  // Dedup để tránh insert trùng nếu người dùng nhập lặp
+  const uniqueNotes = [...new Set(notesArr)];
 
-    if (existingParams.length > 0) {
-      noteId = existingParams[0].note_id;
-    } else {
-      const newNote = await query({
-        query: "INSERT INTO NOTES (name, family) VALUES (?, 'Unknown')",
-        values: [noteName],
-      });
-      noteId = newNote.insertId;
-    }
-
+  for (const noteName of uniqueNotes) {
     await query({
-      query:
-        "INSERT INTO product_notes (product_id, note_id, note_type) VALUES (?, ?, ?)",
-      values: [productId, noteId, noteType],
+      query: `
+        INSERT INTO product_notes (product_id, note_name, note_type)
+        VALUES (?, ?, ?)
+      `,
+      values: [productId, noteName, noteType],
     });
   }
 }
@@ -92,7 +86,6 @@ export async function POST(request) {
   try {
     const body = await request.json();
 
-    // [LOG QUAN TRỌNG] Xem Frontend gửi lên cái gì
     console.log("----------------------------------------------");
     console.log("1. DATA NHẬN ĐƯỢC:", JSON.stringify(body, null, 2));
 
@@ -129,7 +122,7 @@ export async function POST(request) {
 
     const slug = createSlug(name);
 
-    // Insert Sản Phẩm
+    // 1) Insert Sản Phẩm
     const productResult = await query({
       query: `
         INSERT INTO products (name, slug, price, stock_quantity, description, brand_id, volume_ml) 
@@ -139,38 +132,44 @@ export async function POST(request) {
         name,
         slug,
         price,
-        stock_quantity,
-        description,
+        stock_quantity ?? 0,
+        description ?? "",
         finalBrandId,
-        volume_ml,
+        volume_ml ?? null,
       ],
     });
 
     const newProductId = productResult.insertId;
     console.log("3. TẠO SẢN PHẨM THÀNH CÔNG ID:", newProductId);
 
-    // Insert Ảnh
+    // 2) Insert Ảnh
     if (image_urls && image_urls.trim()) {
       const urls = image_urls
         .split(",")
         .map((u) => u.trim())
-        .filter((u) => u);
+        .filter(Boolean);
+
       for (let i = 0; i < urls.length; i++) {
         await query({
-          query:
-            "INSERT INTO product_images (product_id, image_url, is_thumbnail) VALUES (?, ?, ?)",
+          query: `
+            INSERT INTO product_images (product_id, image_url, is_thumbnail)
+            VALUES (?, ?, ?)
+          `,
           values: [newProductId, urls[i], i === 0 ? 1 : 0],
         });
       }
     } else {
       await query({
-        query:
-          "INSERT INTO product_images (product_id, image_url, is_thumbnail) VALUES (?, '/images/products/default.webp', 1)",
+        query: `
+          INSERT INTO product_images (product_id, image_url, is_thumbnail)
+          VALUES (?, '/images/products/default.webp', 1)
+        `,
         values: [newProductId],
       });
     }
 
-    // Insert Hương
+    // 3) Insert Notes (không sập dù thiếu)
+    // Nếu product_notes chưa có cột note_name, query sẽ lỗi -> catch dưới sẽ trả 500.
     await Promise.all([
       processNotes(newProductId, top_notes, "Top"),
       processNotes(newProductId, middle_notes, "Middle"),
@@ -179,6 +178,7 @@ export async function POST(request) {
 
     console.log("--> HOÀN TẤT TOÀN BỘ!");
     console.log("----------------------------------------------");
+
     return NextResponse.json({
       message: "Thêm thành công",
       productId: newProductId,
