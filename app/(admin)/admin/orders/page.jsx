@@ -2,12 +2,14 @@ import Link from "next/link";
 import { headers } from "next/headers";
 
 async function getOrders() {
-  const headersList = headers();
-  const host = headersList.get("host"); 
-  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+
+  if (!baseUrl) {
+    throw new Error("Missing NEXT_PUBLIC_BASE_URL");
+  }
 
   const res = await fetch(
-    `${protocol}://${host}/api/admin/orders`,
+    `${baseUrl}/api/admin/orders`,
     { cache: "no-store" }
   );
 
