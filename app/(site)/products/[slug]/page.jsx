@@ -13,14 +13,36 @@ import ProductRelatedSlider from "@/components/Products/Detail/ProductRelatedSli
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-// Hàm lấy dữ liệu từ SQL (Đã tối ưu chạy song song)
+/* =========================
+   LẤY NOTES AN TOÀN
+   ❌ KHÔNG JOIN NOTES
+========================= */
+async function getProductNotes(productId) {
+  try {
+    return await query({
+      query: `
+        SELECT note_name AS name, note_type
+        FROM product_notes
+        WHERE product_id = ?
+      `,
+      values: [productId],
+    });
+  } catch (err) {
+    console.warn("Skip product notes:", err.message);
+    return [];
+  }
+}
+
+/* =========================
+   LẤY DATA SẢN PHẨM
+========================= */
 async function getProductData(slug) {
-  // 1. Lấy thông tin cơ bản sản phẩm trước (Bắt buộc phải có ID để query các cái sau)
+  // 1. Lấy sản phẩm chính
   const products = await query({
     query: `
-      SELECT p.*, b.name as brand_name, c.name as category_name
-      FROM products p 
-      LEFT JOIN brands b ON p.brand_id = b.brand_id 
+      SELECT p.*, b.name AS brand_name, c.name AS category_name
+      FROM products p
+      LEFT JOIN brands b ON p.brand_id = b.brand_id
       LEFT JOIN categories c ON p.category_id = c.category_id
       WHERE p.slug = ?
     `,
@@ -30,30 +52,26 @@ async function getProductData(slug) {
   if (products.length === 0) return null;
   const product = products[0];
 
-  // 2. Chạy song song 3 truy vấn phụ để tiết kiệm thời gian (Promise.all)
+  // 2. Chạy song song các query phụ
   const [images, notes, related] = await Promise.all([
-    // Query Ảnh
+    // Ảnh
     query({
       query: "SELECT image_url FROM product_images WHERE product_id = ?",
       values: [product.product_id],
     }),
-    // Query Note hương
+
+    // Notes (AN TOÀN)
+    getProductNotes(product.product_id),
+
+    // Sản phẩm liên quan
     query({
       query: `
-        SELECT n.name, pn.note_type 
-        FROM product_notes pn 
-        JOIN NOTES n ON pn.note_id = n.note_id 
-        WHERE pn.product_id = ?
-      `,
-      values: [product.product_id],
-    }),
-    // Query Sản phẩm liên quan
-    query({
-      query: `
-        SELECT p.product_id, p.name, p.slug, p.price, pi.image_url, b.name as brand_name 
+        SELECT p.product_id, p.name, p.slug, p.price,
+               b.name AS brand_name, pi.image_url
         FROM products p
         LEFT JOIN brands b ON p.brand_id = b.brand_id
-        LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
+        LEFT JOIN product_images pi
+          ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
         WHERE p.brand_id = ? AND p.product_id != ?
         LIMIT 4
       `,
@@ -64,22 +82,25 @@ async function getProductData(slug) {
   return { product, images, notes, related };
 }
 
+/* =========================
+   SẢN PHẨM GỢI Ý
+========================= */
 async function getRecommendedProducts(category_id, current_product_id) {
   const products = await query({
     query: `
-      SELECT p.product_id, p.name, p.slug, p.price, 
-             b.name as brand_name, pi.image_url
+      SELECT p.product_id, p.name, p.slug, p.price,
+             b.name AS brand_name, pi.image_url
       FROM products p
       LEFT JOIN brands b ON p.brand_id = b.brand_id
-      LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
+      LEFT JOIN product_images pi
+        ON p.product_id = pi.product_id AND pi.is_thumbnail = 1
       WHERE p.category_id = ? AND p.product_id != ?
-      ORDER BY RAND() 
+      ORDER BY RAND()
       LIMIT 10
     `,
     values: [category_id, current_product_id],
   });
 
-  // Map dữ liệu sang format mà ProductRelatedSlider yêu cầu
   return products.map((p) => ({
     name: p.name,
     brand: p.brand_name || "Laluz Parfums",
@@ -89,42 +110,41 @@ async function getRecommendedProducts(category_id, current_product_id) {
     },
     link: `/products/${p.slug}`,
     image: p.image_url || "/images/products/default.webp",
-    price: parseFloat(p.price),
+    price: Number(p.price),
   }));
 }
 
-// --- MAIN COMPONENT ---
+/* =========================
+   PAGE
+========================= */
 export default async function ProductDetailPage({ params }) {
-  const { slug } = await params; // Next.js 15 yêu cầu await params
+  const { slug } = await params;
   const data = await getProductData(slug);
 
-  if (!data) {
-    notFound();
-  }
-
-  const recommendedProducts = await getRecommendedProducts(
-    data.product.category_id,
-    data.product.product_id
-  );
+  if (!data) notFound();
 
   const { product, images, notes, related } = data;
 
-  // --- XỬ LÝ DỮ LIỆU ---
+  const recommendedProducts = await getRecommendedProducts(
+    product.category_id,
+    product.product_id
+  );
 
-  // 1. Xử lý ảnh
+  /* ---------- XỬ LÝ DỮ LIỆU ---------- */
+
+  // Ảnh
   const imageList =
     images.length > 0
       ? images.map((img) => img.image_url)
       : ["/images/products/default.webp"];
 
-  // 2. Format cho ProductSummary
-  // Lưu ý: Đảm bảo ProductSummary là Client Component để xử lý nút "Thêm vào giỏ"
+  // ProductSummary
   const formattedProduct = {
-    product_id: product.product_id, // Truyền đúng tên field để cartUtils dùng
+    product_id: product.product_id,
     name: product.name,
     stock_quantity: product.stock_quantity,
     price: Number(product.price),
-    image_url: imageList[0], // Truyền ảnh thumbnail để lưu vào cart
+    image_url: imageList[0],
     variations: [
       {
         id: product.volume_ml + "ml",
@@ -136,32 +156,24 @@ export default async function ProductDetailPage({ params }) {
     images: imageList,
   };
 
-  // 3. Format thông tin chi tiết (Info Box)
+  // Info box
   const productInfo = [
     {
-      label: "Thương hiệu: ",
+      label: "Thương hiệu:",
       value: product.brand_name || "Unknown",
       href: {
         pathname: "/collections/all",
         query: { brand: product.brand_name },
-        icon: "/images/ic/ic-info-1.svg",
       },
-      label: "Nồng độ: ",
-      value: product.concentration || "EDP",
-      icon: "/images/ic/ic-info-2.svg",
+      icon: "/images/ic/ic-info-1.svg",
     },
     {
-      label: "Dung tích: ",
+      label: "Dung tích:",
       value: `${product.volume_ml} ml`,
       icon: "/images/ic/ic-info-3.svg",
     },
     {
-      label: "Năm phát hành: ",
-      value: product.release_year,
-      icon: "/images/ic/ic-info-4.svg",
-    },
-    {
-      label: "Giới tính: ",
+      label: "Giới tính:",
       value: product.category_name || "Unisex",
       href: {
         pathname: "/collections/all",
@@ -171,15 +183,17 @@ export default async function ProductDetailPage({ params }) {
     },
   ];
 
-  // 4. Tạo nội dung Tabs
+  // Notes
   const topNotes = notes
     .filter((n) => n.note_type === "Top")
     .map((n) => n.name)
     .join(", ");
+
   const midNotes = notes
     .filter((n) => n.note_type === "Middle")
     .map((n) => n.name)
     .join(", ");
+
   const baseNotes = notes
     .filter((n) => n.note_type === "Base")
     .map((n) => n.name)
@@ -187,7 +201,6 @@ export default async function ProductDetailPage({ params }) {
 
   const descriptionContent = `
     <p>${product.description || ""}</p>
-    <br/>
     ${topNotes ? `<p><strong>Hương đầu:</strong> ${topNotes}.</p>` : ""}
     ${midNotes ? `<p><strong>Hương giữa:</strong> ${midNotes}.</p>` : ""}
     ${baseNotes ? `<p><strong>Hương cuối:</strong> ${baseNotes}.</p>` : ""}
@@ -198,16 +211,13 @@ export default async function ProductDetailPage({ params }) {
     {
       title: "Sử dụng và bảo quản",
       content: `<p>– Xịt ở cổ tay, sau tai, gáy.</p><p>– Không chà xát sau khi xịt.</p>`,
-      showMore: true,
     },
     {
       title: "Vận chuyển và đổi trả",
       content: `<p>Miễn phí vận chuyển cho đơn hàng trên 1 triệu đồng.</p>`,
-      showMore: true,
     },
   ];
 
-  // 5. Format Related Products
   const relatedProducts = related.map((item) => ({
     name: item.name,
     brand: item.brand_name,
@@ -218,21 +228,13 @@ export default async function ProductDetailPage({ params }) {
   }));
 
   const benefits = [
-    {
-      icon: "/images/ic/imgi_292_ic-benefit-1.svg",
-      text: "Cam kết chính hãng 100%",
-    },
-    {
-      icon: "/images/ic/imgi_293_ic-benefit-2-1.svg",
-      text: "Chính sách đổi hàng",
-    },
-    { icon: "/images/ic/imgi_294_ic-benefit-3-1.svg", text: "Tư vấn miễn phí" },
-    {
-      icon: "/images/ic/imgi_295_ic-benefit-4-1.svg",
-      text: "Free ship đơn từ 1 triệu",
-    },
+    { icon: "/images/ic/ic-benefit-1.svg", text: "Cam kết chính hãng 100%" },
+    { icon: "/images/ic/ic-benefit-2.svg", text: "Chính sách đổi hàng" },
+    { icon: "/images/ic/ic-benefit-3.svg", text: "Tư vấn miễn phí" },
+    { icon: "/images/ic/ic-benefit-4.svg", text: "Free ship đơn từ 1 triệu" },
   ];
 
+  /* ---------- RENDER ---------- */
   return (
     <main className="main spc-hd spc-hd-2">
       <Breadcrumb
@@ -243,7 +245,6 @@ export default async function ProductDetailPage({ params }) {
         ]}
       />
 
-      {/* Product Detail Layout */}
       <ProductDetailLayout
         gallery={<ProductGallery images={formattedProduct.images} />}
         summary={<ProductSummary product={formattedProduct} />}
@@ -256,8 +257,6 @@ export default async function ProductDetailPage({ params }) {
         productId={product.product_id}
         productName={product.name}
       />
-
-      {/* ĐÃ XÓA: ProductSummary thừa ở đây */}
 
       <ProductRelatedSlider products={recommendedProducts} />
     </main>
